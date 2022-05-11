@@ -87,12 +87,14 @@
     />
     <div class="interface link">
       <div class="viewport-title">유튜브 주소로 추가</div>
-      <input
-        type="text"
-        placeholder="유튜브 영상 주소를 입력하세요"
-        bind:value={ytURL}
-      />
-      <button on:click={addQueueYT}>추가</button>
+      <div class="frm-input">
+        <input
+          type="text"
+          placeholder="유튜브 영상 주소를 입력하세요"
+          bind:value={ytURL}
+        />
+        <button on:click={addQueueYT}>추가</button>
+      </div>
     </div>
   </div>
 </div>
@@ -112,6 +114,9 @@
 
     .viewport {
       position: relative;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
       width: 90%;
       max-width: 900px;
       height: 150px;
@@ -153,8 +158,8 @@
         display: flex;
         justify-content: flex-start;
         align-items: center;
+        flex-wrap: wrap;
         gap: 10px;
-        padding-bottom: 20px;
 
         .viewport-title {
           color: var(--color1);
@@ -165,28 +170,32 @@
           margin-bottom: 5px;
         }
 
-        input,
-        button {
-          margin: 0;
-        }
+        .frm-input {
+          width: calc(100% - 18em);
+          white-space: nowrap;
+          min-width: min-content;
 
-        input {
-          width: calc(100% - 25em);
-          font-size: 0.7em;
-          height: 3em;
-        }
+          input,
+          button {
+            margin: 0;
+          }
 
-        button {
-          font-size: 0.7em;
-          height: 3em;
-          padding: 0 1.5em;
+          input {
+            font-size: 0.7em;
+            height: 3em;
+          }
+
+          button {
+            font-size: 0.7em;
+            height: 3em;
+            padding: 0 1.5em;
+          }
         }
       }
       .interface.link {
-        margin-bottom: 20px;
-
         input {
-          width: calc(100% - 33.5em) !important;
+          width: calc(100% - 7em) !important;
+          min-width: 18em;
         }
       }
     }

@@ -101,3 +101,34 @@ button:focus {
 .player-area > div {
   height: 100% !important;
 }
+
+@media (max-width: 800px) {
+  .controller {
+    height: 100px !important;
+  }
+
+  .infomation {
+    height: calc(100% - 120px) !important;
+  }
+
+  .controller > .btns {
+    justify-content: center;
+    align-items: flex-end;
+    flex-direction: column;
+  }
+
+  .btns .title {
+    position: absolute;
+    top: 50%;
+    left: -5em;
+    transform: translateY(-50%);
+  }
+
+  .playlist-table-scrollbox {
+    max-height: calc(100% - 1.5em - 5px - 0.8em - 60px) !important;
+  }
+
+  .interface.link .frm-input {
+    width: 100% !important;
+  }
+}

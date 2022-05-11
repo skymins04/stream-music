@@ -66,7 +66,7 @@
   <div class="block controller">
     <SongControl />
     <div class="btns">
-      <div class="title">노래추가</div>
+      <!-- <div class="title">노래추가</div> -->
       <div class="btns">
         <div
           class="btn"
@@ -74,7 +74,7 @@
             FLAG_YT_SEARCH_POPUP.set(!$FLAG_YT_SEARCH_POPUP);
           }}
         >
-          YouTube에서
+          YouTube에서 추가
         </div>
         <div
           on:click={() => {
@@ -82,7 +82,7 @@
           }}
           class="btn"
         >
-          SoundCloud에서
+          SoundCloud에서 추가
         </div>
       </div>
       <div class="btns">
@@ -92,7 +92,7 @@
           }}
           class="btn"
         >
-          내 컴퓨터에서
+          내 컴퓨터에서 추가
         </div>
         <div
           on:click={() => {
@@ -207,29 +207,6 @@
 </div>
 
 <style lang="scss">
-  @media (max-width: 800px) {
-    .controller {
-      height: 100px !important;
-    }
-
-    .infomation {
-      height: calc(100% - 120px) !important;
-    }
-
-    .controller > .btns {
-      justify-content: center;
-      align-items: flex-end;
-      flex-direction: column;
-    }
-
-    .btns .title {
-      position: absolute;
-      top: 50%;
-      left: -5em;
-      transform: translateY(-50%);
-    }
-  }
-
   .btns {
     position: relative;
     max-width: 100%;
@@ -358,7 +335,7 @@
 
   #playlist-area {
     .playlist-table-scrollbox {
-      max-height: calc(100% - 1.5em - 5px - 0.8em - 60px);
+      max-height: calc(100% - 1.5em - 5px - 0.8em - 30px);
       overflow-y: scroll;
     }
 
@@ -378,15 +355,16 @@
         color: #666;
         padding-bottom: 10px;
         margin-bottom: 20px;
+        font-size: 0.6em;
       }
 
       td {
+        font-size: 0.8em;
         padding: 5px 0;
       }
 
       th,
       td {
-        font-size: 0.8em;
         text-align: center;
       }
 
