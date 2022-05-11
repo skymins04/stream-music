@@ -1,21 +1,19 @@
 <script lang="ts">
+  import { errorToast } from "./toast";
   import {
     FLAG_PLAYING,
-    LOCAL_SONG_PATH,
     PLAYLIST,
-    YT_VIDEO_ID,
-    savePlayList,
     PLAYER_ELEMENT,
-    FLAG_PLAYER_IS_READY,
     playSong,
     stopSong,
     fowardSong,
   } from "./stores";
-  import { get } from "svelte/store";
-  import { errorToast } from "./toast";
 
+  /**
+   * 재생/일시정지 버튼 클릭 이벤트 핸들러
+   */
   const clickPlayBtn = () => {
-    // 재생 대기열 및 현재재생중인 곳이 있는지 검사
+    // 재생 대기열 및 현재재생중인 노래가 있는지 검사
     if ($PLAYLIST.queue.length == 0 && $PLAYLIST.currentSong === null) {
       errorToast("재생대기열에 노래가 없습니다.");
       return;
@@ -24,11 +22,11 @@
     // 재생 상태 토글
     FLAG_PLAYING.set(!$FLAG_PLAYING);
 
-    // 재생시작인 경우
+    // 재생상태가 재생시작인 경우이고 현재 재생중인 곡이 없는 경우
     if ($FLAG_PLAYING && $PLAYLIST.currentSong === null) {
       playSong($FLAG_PLAYING);
     }
-    // 일시정지인 경우
+    // 현재 재생중인 곡이 있는 경우에서 재생 토글
     else {
       if ($PLAYLIST.currentSong.type === "youtube") {
         if ($FLAG_PLAYING) $PLAYER_ELEMENT.playVideo();
@@ -37,9 +35,17 @@
       }
     }
   };
+
+  /**
+   * 재생 중지 버튼 클릭 이벤트 핸들러
+   */
   const clickStopBtn = () => {
     stopSong();
   };
+
+  /**
+   * 다음곡 버튼 클릭 이벤트 핸들러
+   */
   const clickForwardBtn = () => {
     fowardSong($FLAG_PLAYING);
   };

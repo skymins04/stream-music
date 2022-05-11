@@ -3,6 +3,8 @@
   import YouTube from "svelte-youtube";
   import LoadingScreenSaver from "./LoadingScreenSaver.svelte";
   import SongControl from "./SongControl.svelte";
+  import { ToastContainer, FlatToast } from "svelte-toasts";
+  import { successToast, infoToast } from "./toast";
 
   import {
     FLAG_YT_SEARCH_POPUP,
@@ -16,15 +18,20 @@
     savePlayList,
     PLAYER_ELEMENT,
     fowardSong,
+    stopSong,
   } from "./stores";
-  import { ToastContainer, FlatToast } from "svelte-toasts";
-  import { successToast, infoToast } from "./toast";
 
+  // 실수로 페이지를 빠져나가는 것을 방지
   window.addEventListener("beforeunload", (event) => {
     event.preventDefault();
     event.returnValue = "";
   });
 
+  /**
+   * 재생 대기열 내 노래의 순번을 변경하는 함수
+   * @param n 변경할 노래의 인덱스 번호
+   * @param offset 순번 변경 오프셋, 1: UP, -1: DOWN
+   */
   const songUpDown = (n: number, offset: number = 1) => {
     if (
       (n > 0 && offset === 1) ||
@@ -37,6 +44,11 @@
       savePlayList();
     }
   };
+
+  /**
+   * 재생 대기열 내 노래를 제거하는 함수
+   * @param n 제거할 노래의 인덱스 번호
+   */
   const songDel = (n: number) => {
     if (n >= 0 && n <= $PLAYLIST.queue.length - 1) {
       if (confirm("정말 재생대기열에서 삭제하시겠습니까?")) {
@@ -47,19 +59,26 @@
     }
   };
 
+  /**
+   * YouTube iframe의 Event handler를 얻는 함수
+   * @param event
+   */
   const onReadyYoutubePlayer = (event) => {
     PLAYER_ELEMENT.set(event.detail.target);
-    console.log("get ele");
   };
 
+  /**
+   * YouTube iframe의 상태변화 Event handler
+   * @param event
+   */
   const onStateChangeYoutubePlayer = (event) => {
     if (event.detail.data === -1) {
       // not started
       FLAG_PLAYER_IS_READY.set(false);
-      console.log("reset");
     } else if (event.detail.data === 0) {
       // end video
-      fowardSong($FLAG_PLAYING);
+      if ($PLAYLIST.queue.length !== 0) fowardSong($FLAG_PLAYING);
+      else stopSong();
     } else if (event.detail.data === 1) {
       // is playing
       FLAG_PLAYING.set(true);
@@ -68,10 +87,8 @@
       FLAG_PLAYING.set(false);
     } else if (event.detail.data === 5) {
       // video on ready
-      console.log("setted");
       if ($FLAG_PLAYING) $PLAYER_ELEMENT.playVideo();
       FLAG_PLAYER_IS_READY.set(true);
-      console.log($FLAG_PLAYER_IS_READY);
     }
   };
 </script>
@@ -118,7 +135,6 @@
         <div
           on:click={() => {
             infoToast("현재 서비스 준비중입니다!");
-            YT_VIDEO_ID.set("8MrZDLWvB94");
           }}
           class="btn"
         >
@@ -127,7 +143,6 @@
         <div
           on:click={() => {
             infoToast("현재 서비스 준비중입니다!");
-            YT_VIDEO_ID.set("");
           }}
           class="btn"
         >
