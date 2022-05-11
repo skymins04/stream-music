@@ -94,7 +94,7 @@ button:focus {
   border-color: #666;
 }
 
-#widget2 {
+.player-area iframe {
   width: 100% !important;
   height: 100% !important;
 }

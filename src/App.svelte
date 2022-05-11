@@ -7,14 +7,18 @@
   import {
     FLAG_YT_SEARCH_POPUP,
     FLAG_LOADING_SCREEN_SAVER,
+    FLAG_PLAYER_IS_READY,
+    FLAG_PLAYING,
     YT_VIDEO_ID,
+    LOCAL_SONG_PATH,
     PLAYLIST,
     Song,
+    savePlayList,
+    PLAYER_ELEMENT,
+    fowardSong,
   } from "./stores";
   import { ToastContainer, FlatToast } from "svelte-toasts";
   import { successToast, infoToast } from "./toast";
-
-  YT_VIDEO_ID.set("13xy-si_o6c");
 
   window.addEventListener("beforeunload", (event) => {
     event.preventDefault();
@@ -30,18 +34,44 @@
       const songB: Song = $PLAYLIST.queue[n - 1 * offset];
       $PLAYLIST.queue[n] = songB;
       $PLAYLIST.queue[n - 1 * offset] = songA;
-      PLAYLIST.set($PLAYLIST);
-      localStorage.setItem("streamMusicPlayList", JSON.stringify($PLAYLIST));
+      savePlayList();
     }
   };
   const songDel = (n: number) => {
     if (n >= 0 && n <= $PLAYLIST.queue.length - 1) {
       if (confirm("정말 재생대기열에서 삭제하시겠습니까?")) {
         $PLAYLIST.queue.pop(n);
-        PLAYLIST.set($PLAYLIST);
-        localStorage.setItem("streamMusicPlayList", JSON.stringify($PLAYLIST));
+        savePlayList();
         successToast("노래를 재생대기열에서 삭제했습니다.");
       }
+    }
+  };
+
+  const onReadyYoutubePlayer = (event) => {
+    PLAYER_ELEMENT.set(event.detail.target);
+    console.log("get ele");
+  };
+
+  const onStateChangeYoutubePlayer = (event) => {
+    if (event.detail.data === -1) {
+      // not started
+      FLAG_PLAYER_IS_READY.set(false);
+      console.log("reset");
+    } else if (event.detail.data === 0) {
+      // end video
+      fowardSong($FLAG_PLAYING);
+    } else if (event.detail.data === 1) {
+      // is playing
+      FLAG_PLAYING.set(true);
+    } else if (event.detail.data === 2) {
+      // paused
+      FLAG_PLAYING.set(false);
+    } else if (event.detail.data === 5) {
+      // video on ready
+      console.log("setted");
+      if ($FLAG_PLAYING) $PLAYER_ELEMENT.playVideo();
+      FLAG_PLAYER_IS_READY.set(true);
+      console.log($FLAG_PLAYER_IS_READY);
     }
   };
 </script>
@@ -66,7 +96,6 @@
   <div class="block controller">
     <SongControl />
     <div class="btns">
-      <!-- <div class="title">노래추가</div> -->
       <div class="btns">
         <div
           class="btn"
@@ -89,6 +118,7 @@
         <div
           on:click={() => {
             infoToast("현재 서비스 준비중입니다!");
+            YT_VIDEO_ID.set("8MrZDLWvB94");
           }}
           class="btn"
         >
@@ -97,6 +127,7 @@
         <div
           on:click={() => {
             infoToast("현재 서비스 준비중입니다!");
+            YT_VIDEO_ID.set("");
           }}
           class="btn"
         >
@@ -110,11 +141,54 @@
     <div class="block info-area" id="song-area">
       <div class="sub-block player-area">
         {#if $YT_VIDEO_ID != ""}
-          <YouTube videoId={$YT_VIDEO_ID} />
+          <YouTube
+            videoId={$YT_VIDEO_ID}
+            on:ready={onReadyYoutubePlayer}
+            on:stateChange={onStateChangeYoutubePlayer}
+          />
+        {:else if $LOCAL_SONG_PATH != ""}{:else}
+          <div id="none-song">
+            <svg
+              class="icon play"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 512 512"
+              ><path
+                d="M512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM176 168V344C176 352.7 180.7 360.7 188.3 364.9C195.8 369.2 205.1 369 212.5 364.5L356.5 276.5C363.6 272.1 368 264.4 368 256C368 247.6 363.6 239.9 356.5 235.5L212.5 147.5C205.1 142.1 195.8 142.8 188.3 147.1C180.7 151.3 176 159.3 176 168V168z"
+              /></svg
+            >
+          </div>
         {/if}
       </div>
       <div class="sub-block">
         <div class="title">현재재생곡</div>
+        {#if $PLAYLIST.currentSong !== null}
+          <div class="current-song">
+            <span class="line"
+              >- TITLE: <span class="bold">{$PLAYLIST.currentSong.title}</span
+              ></span
+            >
+            <span class="line">
+              - ARTIST: <span class="bold">{$PLAYLIST.currentSong.artist}</span>
+            </span>
+            <span class="line">
+              - DURATION: <span class="bold"
+                >{$PLAYLIST.currentSong.duration}</span
+              >
+            </span>
+            {#if $PLAYLIST.currentSong.type === "youtube"}
+              <span class="line">
+                <a
+                  target="_blank"
+                  href="https://youtube.com/watch?v={$PLAYLIST.currentSong
+                    .songId}"
+                  >https://youtube.com/watch?v={$PLAYLIST.currentSong.songId}</a
+                >
+              </span>
+            {/if}
+          </div>
+        {:else}
+          <div class="current-song-null">현재 재생중인 곡이 없습니다.</div>
+        {/if}
       </div>
     </div>
     <div class="block info-area" id="playlist-area">
@@ -122,10 +196,8 @@
       <table class="playlist-table">
         <colgroup>
           <col width="20px" />
-          <col width="80px" />
           <col />
-          <col width="100px" />
-          <col width="70px" />
+          <col width="150px" />
           <col width="70px" />
           <col width="70px" />
           <col width="100px" />
@@ -133,13 +205,11 @@
         <thead>
           <tr>
             <th />
-            <th>THUMBNAIL</th>
             <th>TITLE</th>
             <th>ARTIST</th>
-            <th>PUBLISH DATE</th>
             <th>PLATFORM</th>
             <th>DURATION</th>
-            <th>SETTING</th>
+            <th>ACTIONS</th>
           </tr>
         </thead>
       </table>
@@ -147,10 +217,8 @@
         <table class="playlist-table">
           <colgroup>
             <col width="20px" />
-            <col width="80px" />
             <col />
-            <col width="100px" />
-            <col width="70px" />
+            <col width="150px" />
             <col width="70px" />
             <col width="70px" />
             <col width="100px" />
@@ -159,16 +227,8 @@
             {#each $PLAYLIST.queue as song, i}
               <tr>
                 <td>{i + 1}</td>
-                <td>
-                  <img
-                    class="playlist-thumbnail"
-                    src={song.thumbnails.default.url}
-                    alt=""
-                  />
-                </td>
                 <td>{song.title}</td>
                 <td>{song.artist}</td>
-                <td>{song.publishedAt.split("T")[0]}</td>
                 <td>{song.type}</td>
                 <td>{song.duration}</td>
                 <td>
@@ -273,6 +333,55 @@
       position: relative;
       width: calc(50% - 10px);
       height: 100%;
+    }
+
+    .title {
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+    }
+
+    .current-song {
+      width: 100%;
+      height: calc(100% - 1.5em - 0.8em - 20px);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 5px;
+
+      .line {
+        font-size: 0.8em;
+
+        .bold {
+          font-weight: 400;
+          margin-left: 1em;
+        }
+      }
+    }
+
+    .current-song-null {
+      width: 100%;
+      height: calc(100% - 1.5em - 0.8em - 20px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #666;
+      font-size: 0.8em;
+    }
+
+    #none-song {
+      width: 100%;
+      height: 100%;
+      background-color: #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .icon {
+        width: 60px;
+        height: 60px;
+        fill: #aaa;
+      }
     }
   }
 

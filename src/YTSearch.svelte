@@ -1,15 +1,17 @@
 <script lang="ts">
-  import axios from "axios";
-
   import {
     FLAG_LOADING_SCREEN_SAVER,
     FLAG_YT_SEARCH_POPUP,
     LOADING_SCREEN_SAVER_MSG,
     PLAYLIST,
+    savePlayList,
   } from "./stores";
   import { errorToast, successToast } from "./toast";
+  import YouTube from "svelte-youtube";
 
   let ytURL: string;
+  let ytSearchID: string;
+  let ytPlyaer: any;
 
   const addQueueYT = async () => {
     const ytURLRegExp =
@@ -27,53 +29,25 @@
       return;
     }
 
-    const songId = songIdMatch[7];
+    ytSearchID = songIdMatch[7];
 
     LOADING_SCREEN_SAVER_MSG.set("재생대기열에 추가 중...");
     FLAG_LOADING_SCREEN_SAVER.set(true);
-    await axios
-      .get(
-        `https://streammusic-api.netlify.app/.netlify/functions/ytSong?id=${songId}`
-      )
-      .then((response) => {
-        const res = response.data;
-        let msg = "";
-        switch (res.state) {
-          case "internal_server_err":
-            msg = "server error.";
-          case "invaild_param":
-            msg = "잘못된 요청입니다.";
-          case "invaild_id":
-            msg = "존재하지 않는 영상입니다.";
-            errorToast(msg);
-            return;
-          case "success":
-            PLAYLIST.set({
-              queue: $PLAYLIST.queue.concat([
-                {
-                  type: "youtube",
-                  songId,
-                  title: res.data.title,
-                  artist: res.data.artist,
-                  duration: res.data.duration,
-                  description: res.data.description,
-                  publishedAt: res.data.publishedAt,
-                  thumbnails: res.data.thumbnails,
-                },
-              ]),
-              history: $PLAYLIST.history,
-            });
-            localStorage.setItem(
-              "streamMusicPlayList",
-              JSON.stringify($PLAYLIST)
-            );
-            FLAG_LOADING_SCREEN_SAVER.set(false);
-            LOADING_SCREEN_SAVER_MSG.set("");
-            FLAG_YT_SEARCH_POPUP.set(false);
-            successToast("재생대기열에 추가되었습니다!");
-            console.log($PLAYLIST.queue);
-        }
-      });
+
+    setTimeout(() => {
+      ytPlyaer.mute();
+      ytPlyaer.playVideo();
+    }, 1000);
+  };
+
+  const getDurationNumToStr = (sec: number) => {
+    const M = Math.floor(sec / 60);
+    const S = sec - M * 60;
+
+    const durationM = String(M).padStart(2, "0");
+    const durationS = String(S).padStart(2, "0");
+
+    return `${durationM}:${durationS}`;
   };
 </script>
 
@@ -96,10 +70,39 @@
         <button on:click={addQueueYT}>추가</button>
       </div>
     </div>
+    <div class="displaynone">
+      <YouTube
+        videoId={ytSearchID}
+        on:ready={(event) => {
+          ytPlyaer = event.detail.target;
+        }}
+        on:play={() => {
+          ytPlyaer.pauseVideo();
+          const data = ytPlyaer.getVideoData();
+          const durationSec = Math.ceil(ytPlyaer.getDuration());
+          $PLAYLIST.queue.push({
+            type: "youtube",
+            songId: ytSearchID,
+            title: data.title,
+            artist: data.author,
+            duration: getDurationNumToStr(durationSec),
+          });
+          savePlayList();
+          FLAG_LOADING_SCREEN_SAVER.set(false);
+          LOADING_SCREEN_SAVER_MSG.set("");
+          FLAG_YT_SEARCH_POPUP.set(false);
+          successToast("재생대기열에 추가되었습니다!");
+        }}
+      />
+    </div>
   </div>
 </div>
 
 <style lang="scss">
+  .displaynone {
+    display: none !important;
+  }
+
   #yt-search-popup {
     position: fixed;
     top: 0;

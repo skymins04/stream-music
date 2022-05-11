@@ -1,10 +1,48 @@
 <script lang="ts">
-  import { FLAG_PLAYING } from "./stores";
+  import {
+    FLAG_PLAYING,
+    LOCAL_SONG_PATH,
+    PLAYLIST,
+    YT_VIDEO_ID,
+    savePlayList,
+    PLAYER_ELEMENT,
+    FLAG_PLAYER_IS_READY,
+    playSong,
+    stopSong,
+    fowardSong,
+  } from "./stores";
+  import { get } from "svelte/store";
+  import { errorToast } from "./toast";
 
   const clickPlayBtn = () => {
+    // 재생 대기열 및 현재재생중인 곳이 있는지 검사
+    if ($PLAYLIST.queue.length == 0 && $PLAYLIST.currentSong === null) {
+      errorToast("재생대기열에 노래가 없습니다.");
+      return;
+    }
+
+    // 재생 상태 토글
     FLAG_PLAYING.set(!$FLAG_PLAYING);
+
+    // 재생시작인 경우
+    if ($FLAG_PLAYING && $PLAYLIST.currentSong === null) {
+      playSong($FLAG_PLAYING);
+    }
+    // 일시정지인 경우
+    else {
+      if ($PLAYLIST.currentSong.type === "youtube") {
+        if ($FLAG_PLAYING) $PLAYER_ELEMENT.playVideo();
+        else $PLAYER_ELEMENT.pauseVideo();
+      } else if ($PLAYLIST.currentSong.type === "local") {
+      }
+    }
   };
-  const clickForwardBtn = () => {};
+  const clickStopBtn = () => {
+    stopSong();
+  };
+  const clickForwardBtn = () => {
+    fowardSong($FLAG_PLAYING);
+  };
 </script>
 
 <div id="song-control-interface">
@@ -29,7 +67,7 @@
       >
     {/if}
   </div>
-  <div class="song-control-btn" id="stop-btn">
+  <div class="song-control-btn" id="stop-btn" on:click={clickStopBtn}>
     <svg
       class="icon stop"
       xmlns="http://www.w3.org/2000/svg"
