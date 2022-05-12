@@ -53,12 +53,22 @@
           <td>{i + 1}</td>
           <td>
             <WritableText
-              option={{ text: song.title, key: "title", index: i }}
+              option={{
+                text: song.title,
+                key: "title",
+                index: i,
+                isCurrentSong: false,
+              }}
             />
           </td>
           <td>
             <WritableText
-              option={{ text: song.artist, key: "artist", index: i }}
+              option={{
+                text: song.artist,
+                key: "artist",
+                index: i,
+                isCurrentSong: false,
+              }}
             />
           </td>
           <td>{song.type}</td>

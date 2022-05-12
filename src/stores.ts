@@ -20,6 +20,7 @@ export const FLAG_LOADING_SCREEN_SAVER = writable(false); // 로딩 스크린 �
 export const FLAG_PLAYING = writable(false); // 재생 여부 플래그
 export const FLAG_PLAYER_IS_READY = writable(false); // YouTube iframe의 Video on ready 여부 플래그
 export const FLAG_NEXT_SONG_LOADING = writable(false); // 재생 대기열 내의 다음곡을 로딩중인지 여부 플래그
+export const FLAG_HISTORY_LIST = writable(false);
 
 export const LOADING_SCREEN_SAVER_MSG = writable(""); // 로딩 스크린 세이버 메세지
 export const YT_VIDEO_ID = writable(""); // YouTube iframe Video ID

@@ -4,7 +4,7 @@
 </script>
 
 <div class="btn" on:click={onClick}>
-  {label}
+  {@html label}
 </div>
 
 <style lang="scss">
@@ -15,8 +15,16 @@
     border-radius: 8px;
     background-color: var(--color1);
     font-size: 0.8em;
+    font-weight: 400;
     color: white;
     transition: 0.1s;
+
+    .icon {
+      width: 1em;
+      height: 1em;
+      fill: white;
+      transition: 0.1s;
+    }
   }
   .btn:hover {
     cursor: pointer;

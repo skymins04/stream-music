@@ -3,6 +3,8 @@
 :root {
   --color1: #ff3e00;
   --color2: #db3500;
+  --color3: #db3500dd;
+  --color4: #d6c4bf;
 }
 
 @keyframes opacityFadeIn {
@@ -130,5 +132,9 @@ button:focus {
 
   .interface.link .frm-input {
     width: 100% !important;
+  }
+
+  #playlist-area .title {
+    margin-top: 0 !important;
   }
 }

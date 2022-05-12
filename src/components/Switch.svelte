@@ -1,6 +1,5 @@
 <script>
   export let checked = false;
-  export let color = "#ff3e00";
 </script>
 
 <label class="switch">
@@ -49,11 +48,11 @@
   }
 
   input:checked + .slider {
-    background-color: #2196f3;
+    background-color: #ff3e00;
   }
 
   input:checked + .slider {
-    box-shadow: 0 0 1px #2196f3;
+    box-shadow: 0 0 1px #ff3e00;
   }
 
   input:checked + .slider:before {

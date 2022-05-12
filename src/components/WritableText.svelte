@@ -5,7 +5,8 @@
   interface WritableTextOption {
     text: string;
     key: string;
-    index: number;
+    index?: number;
+    isCurrentSong: boolean;
   }
 
   export let option: WritableTextOption;
@@ -14,18 +15,36 @@
   let inputTextValue: string = option.text;
 
   /**
-   * PlayList 내 텍스트를 수정하는 함수
+   * PlayList 내 queue의 특정 텍스트를 수정하는 함수
    */
-  const saveText = () => {
-    (get(PLAYLIST) as any).queue[option.index][option.key] = inputTextValue;
+  const saveTextAtQueue = () => {
+    (get(PLAYLIST) as any).queue[option.index as number][option.key] =
+      inputTextValue;
     savePlayList();
     writeMode = false;
   };
+
+  /**
+   * PlayList 내 currentSong의 특정 텍스트를 수정하는 함수
+   */
+  const saveTextAtCurrentSong = () => {
+    (get(PLAYLIST) as any).currentSong[option.key] = inputTextValue;
+    savePlayList();
+    writeMode = false;
+  };
+
+  /**
+   * option의 isCurrentSong에 따라 함수를 지정함.
+   */
+  const saveText = option.isCurrentSong
+    ? saveTextAtCurrentSong
+    : saveTextAtQueue;
 </script>
 
-<div class="writable-text">
+<div class="writable-text" class:current-song={option.isCurrentSong}>
   <span
     class="text"
+    class:current-song={option.isCurrentSong}
     class:display-none={writeMode}
     on:click={() => {
       writeMode = !writeMode;
@@ -50,26 +69,29 @@
     display: none !important;
   }
 
+  .current-song {
+    font-size: 1em !important;
+    text-align: left !important;
+    font-weight: 400 !important;
+  }
+
   .writable-text {
     width: 100%;
     text-align: center;
     .text {
       width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: nowrap;
       font-size: 0.8em;
       color: #333;
       font-weight: 100;
       text-align: center;
 
       .write-icon {
+        position: relative;
+        top: 1px;
         fill: #aaa;
-        width: 0.8em;
-        height: 0.8em;
+        width: 10px;
+        height: 10px;
         margin-left: 0.5em;
-        margin-top: 0.1em;
       }
     }
     .text:hover {
