@@ -10,8 +10,8 @@
   import YouTube from "svelte-youtube";
 
   let ytURL: string;
-  let ytSearchID: string;
-  let ytPlyaer: any;
+  let ytSearchID: string = "";
+  let ytPlayer: any = null;
 
   const addQueueYT = async () => {
     const ytURLRegExp =
@@ -35,8 +35,8 @@
     FLAG_LOADING_SCREEN_SAVER.set(true);
 
     setTimeout(() => {
-      ytPlyaer.mute();
-      ytPlyaer.playVideo();
+      ytPlayer.mute();
+      ytPlayer.playVideo();
     }, 1000);
   };
 
@@ -48,6 +48,35 @@
     const durationS = String(S).padStart(2, "0");
 
     return `${durationM}:${durationS}`;
+  };
+
+  const onReadyYoutubePlayer = (event) => {
+    ytPlayer = event.detail.target;
+  };
+
+  const onStateChangeYoutubePlayer = (event) => {
+    if (event.detail.data === 1) {
+      ytPlayer.pauseVideo();
+      const data = ytPlayer.getVideoData();
+      const durationSec = Math.ceil(ytPlayer.getDuration());
+      $PLAYLIST.queue.push({
+        type: "youtube",
+        songId: ytSearchID,
+        title: data.title,
+        artist: data.author,
+        duration: getDurationNumToStr(durationSec),
+      });
+      savePlayList();
+      FLAG_LOADING_SCREEN_SAVER.set(false);
+      LOADING_SCREEN_SAVER_MSG.set("");
+      FLAG_YT_SEARCH_POPUP.set(false);
+      successToast("재생대기열에 추가되었습니다!");
+      ytPlayer = null;
+      ytSearchID = "";
+    } else if (event.detail.data === 5) {
+      ytPlayer.mute();
+      ytPlayer.playVideo();
+    }
   };
 </script>
 
@@ -71,29 +100,13 @@
       </div>
     </div>
     <div class="displaynone">
-      <YouTube
-        videoId={ytSearchID}
-        on:ready={(event) => {
-          ytPlyaer = event.detail.target;
-        }}
-        on:play={() => {
-          ytPlyaer.pauseVideo();
-          const data = ytPlyaer.getVideoData();
-          const durationSec = Math.ceil(ytPlyaer.getDuration());
-          $PLAYLIST.queue.push({
-            type: "youtube",
-            songId: ytSearchID,
-            title: data.title,
-            artist: data.author,
-            duration: getDurationNumToStr(durationSec),
-          });
-          savePlayList();
-          FLAG_LOADING_SCREEN_SAVER.set(false);
-          LOADING_SCREEN_SAVER_MSG.set("");
-          FLAG_YT_SEARCH_POPUP.set(false);
-          successToast("재생대기열에 추가되었습니다!");
-        }}
-      />
+      {#if ytSearchID !== ""}
+        <YouTube
+          videoId={ytSearchID}
+          on:ready={onReadyYoutubePlayer}
+          on:stateChange={onStateChangeYoutubePlayer}
+        />
+      {/if}
     </div>
   </div>
 </div>
