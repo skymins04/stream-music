@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { LOADING_SCREEN_SAVER_MSG } from "./stores";
+  import { LOADING_SCREEN_SAVER_MSG } from "../stores";
 </script>
 
 <div id="screen-saver">

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { errorToast } from "./toast";
+  import { errorToast } from "../toast";
   import {
     FLAG_PLAYING,
     PLAYLIST,
@@ -7,7 +7,7 @@
     playSong,
     stopSong,
     fowardSong,
-  } from "./stores";
+  } from "../stores";
 
   /**
    * 재생/일시정지 버튼 클릭 이벤트 핸들러

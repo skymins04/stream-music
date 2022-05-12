@@ -1,13 +1,14 @@
 <script lang="ts">
+  import { errorToast, successToast } from "../toast";
+  import YouTube from "svelte-youtube";
+
   import {
     FLAG_LOADING_SCREEN_SAVER,
     FLAG_YT_SEARCH_POPUP,
     LOADING_SCREEN_SAVER_MSG,
     PLAYLIST,
     savePlayList,
-  } from "./stores";
-  import { errorToast, successToast } from "./toast";
-  import YouTube from "svelte-youtube";
+  } from "../stores";
 
   let ytURL: string;
   let ytSearchID: string = "";

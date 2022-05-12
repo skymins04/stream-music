@@ -4,7 +4,7 @@
   import LoadingScreenSaver from "./LoadingScreenSaver.svelte";
   import SongControl from "./SongControl.svelte";
   import { ToastContainer, FlatToast } from "svelte-toasts";
-  import { successToast, infoToast } from "./toast";
+  import { successToast, infoToast } from "../toast";
 
   import {
     FLAG_YT_SEARCH_POPUP,
@@ -19,7 +19,7 @@
     savePlayList,
     PLAYER_ELEMENT,
     fowardSong,
-  } from "./stores";
+  } from "../stores";
 
   // 실수로 페이지를 빠져나가는 것을 방지
   window.addEventListener("beforeunload", (event) => {

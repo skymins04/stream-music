@@ -1,4 +1,4 @@
-import App from "./App.svelte";
+import App from "./components/App.svelte";
 import { get } from "svelte/store";
 import { PLAYLIST, YT_VIDEO_ID, LOCAL_SONG_PATH } from "./stores";
 
