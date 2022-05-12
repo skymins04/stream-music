@@ -11,6 +11,7 @@
     FLAG_LOADING_SCREEN_SAVER,
     FLAG_PLAYER_IS_READY,
     FLAG_PLAYING,
+    FLAG_NEXT_SONG_LOADING,
     YT_VIDEO_ID,
     LOCAL_SONG_PATH,
     PLAYLIST,
@@ -18,7 +19,6 @@
     savePlayList,
     PLAYER_ELEMENT,
     fowardSong,
-    stopSong,
   } from "./stores";
 
   // 실수로 페이지를 빠져나가는 것을 방지
@@ -77,8 +77,7 @@
       FLAG_PLAYER_IS_READY.set(false);
     } else if (event.detail.data === 0) {
       // end video
-      if ($PLAYLIST.queue.length !== 0) fowardSong($FLAG_PLAYING);
-      else stopSong();
+      fowardSong($FLAG_PLAYING);
     } else if (event.detail.data === 1) {
       // is playing
       FLAG_PLAYING.set(true);
@@ -89,6 +88,7 @@
       // video on ready
       if ($FLAG_PLAYING) $PLAYER_ELEMENT.playVideo();
       FLAG_PLAYER_IS_READY.set(true);
+      FLAG_NEXT_SONG_LOADING.set(false);
     }
   };
 </script>
@@ -175,7 +175,7 @@
         {/if}
       </div>
       <div class="sub-block">
-        <div class="title">현재재생곡</div>
+        <div class="title">Now Playing</div>
         {#if $PLAYLIST.currentSong !== null}
           <div class="current-song">
             <span class="line"
@@ -189,6 +189,9 @@
               - DURATION: <span class="bold"
                 >{$PLAYLIST.currentSong.duration}</span
               >
+            </span>
+            <span class="line">
+              - PLATFORM: <span class="bold">{$PLAYLIST.currentSong.type}</span>
             </span>
             {#if $PLAYLIST.currentSong.type === "youtube"}
               <span class="line">
@@ -207,7 +210,7 @@
       </div>
     </div>
     <div class="block info-area" id="playlist-area">
-      <div class="title">재생대기열</div>
+      <div class="title">PlayList</div>
       <table class="playlist-table">
         <colgroup>
           <col width="20px" />
@@ -253,7 +256,14 @@
                       songUpDown(i);
                     }}
                   >
-                    ⬆
+                    <svg
+                      class="icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 320 512"
+                      ><path
+                        d="M9.39 265.4l127.1-128C143.6 131.1 151.8 128 160 128s16.38 3.125 22.63 9.375l127.1 128c9.156 9.156 11.9 22.91 6.943 34.88S300.9 320 287.1 320H32.01c-12.94 0-24.62-7.781-29.58-19.75S.2333 274.5 9.39 265.4z"
+                      /></svg
+                    >
                   </div>
                   <div
                     class="song-setting-btn song-down"
@@ -261,7 +271,14 @@
                       songUpDown(i, -1);
                     }}
                   >
-                    ⬇
+                    <svg
+                      class="icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 320 512"
+                      ><path
+                        d="M310.6 246.6l-127.1 128C176.4 380.9 168.2 384 160 384s-16.38-3.125-22.63-9.375l-127.1-128C.2244 237.5-2.516 223.7 2.438 211.8S19.07 192 32 192h255.1c12.94 0 24.62 7.781 29.58 19.75S319.8 237.5 310.6 246.6z"
+                      /></svg
+                    >
                   </div>
                   <div
                     class="song-setting-btn song-del"
@@ -269,7 +286,14 @@
                       songDel(i);
                     }}
                   >
-                    ✕
+                    <svg
+                      class="icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 320 512"
+                      ><path
+                        d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z"
+                      /></svg
+                    >
                   </div>
                 </td>
               </tr>
@@ -348,6 +372,9 @@
       position: relative;
       width: calc(50% - 10px);
       height: 100%;
+    }
+
+    .player-area {
     }
 
     .title {
@@ -460,7 +487,7 @@
   #playlist-area {
     .playlist-table-scrollbox {
       max-height: calc(100% - 1.5em - 5px - 0.8em - 30px);
-      overflow-y: scroll;
+      overflow-y: auto;
     }
 
     .playlist-table {
@@ -505,17 +532,22 @@
         height: 18px;
         border: 1px solid #ccc;
         border-radius: 2px;
-        transition: 0.1s;
         vertical-align: middle;
-        color: #aaa;
-      }
-      .song-del {
-        padding-bottom: 3px;
+
+        .icon {
+          width: 14px;
+          height: 14px;
+          fill: #aaa;
+          transition: 0.1s;
+        }
       }
       .song-setting-btn:hover {
         cursor: pointer;
         box-shadow: 0 0 3px #ccc;
-        color: var(--color1);
+
+        .icon {
+          fill: var(--color1);
+        }
       }
     }
   }

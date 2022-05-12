@@ -28,7 +28,6 @@ body {
   min-height: 800px;
   background-color: var(--color1);
   overflow-x: hidden;
-  overflow-y: scroll;
 }
 
 body {
@@ -39,6 +38,7 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  overflow-y: auto;
 }
 
 a {

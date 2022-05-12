@@ -19,6 +19,7 @@ export const FLAG_SC_SEARCH_POPUP = writable(false); // SoundCloud 음원 추가
 export const FLAG_LOADING_SCREEN_SAVER = writable(false); // 로딩 스크린 세이버 플래그
 export const FLAG_PLAYING = writable(false); // 재생 여부 플래그
 export const FLAG_PLAYER_IS_READY = writable(false); // YouTube iframe의 Video on ready 여부 플래그
+export const FLAG_NEXT_SONG_LOADING = writable(false); // 재생 대기열 내의 다음곡을 로딩중인지 여부 플래그
 
 export const LOADING_SCREEN_SAVER_MSG = writable(""); // 로딩 스크린 세이버 메세지
 export const YT_VIDEO_ID = writable(""); // YouTube iframe Video ID
@@ -102,8 +103,13 @@ export const playSong = (pause: boolean) => {
  * @param pause 재생상태 여부, true: 재생, false: 일시정지
  */
 export const fowardSong = (pause: boolean) => {
-  stopSong();
-  setTimeout(() => {
-    playSong(pause);
-  }, 500);
+  if (!get(FLAG_NEXT_SONG_LOADING)) {
+    FLAG_NEXT_SONG_LOADING.set(true);
+    stopSong();
+    if (get(PLAYLIST).queue.length !== 0) {
+      setTimeout(() => {
+        playSong(pause);
+      }, 500);
+    }
+  }
 };
