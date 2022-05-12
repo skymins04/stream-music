@@ -94,8 +94,12 @@
       <div class="frm-input">
         <input
           type="text"
-          placeholder="유튜브 영상 주소를 입력하세요"
+          placeholder="ex) https://www.youtube.com/watch?v=-Y9VtoPvtuM"
           bind:value={ytURL}
+          on:keypress={((event) => {
+            const key = event.key || event.keyCode;
+            if (key === "Enter" || key === 13) return addQueueYT;
+          })(event)}
         />
         <button on:click={addQueueYT}>추가</button>
       </div>
@@ -210,8 +214,10 @@
         }
       }
       .interface.link {
+        width: calc(100% - 4em);
+        margin-bottom: 5px;
         input {
-          width: calc(100% - 7em) !important;
+          width: 100% !important;
           min-width: 18em;
         }
       }

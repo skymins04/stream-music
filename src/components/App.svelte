@@ -2,9 +2,12 @@
   import YtSearch from "./YTSearch.svelte";
   import YouTube from "svelte-youtube";
   import LoadingScreenSaver from "./LoadingScreenSaver.svelte";
+  import Btn from "./Btn.svelte";
   import SongControl from "./SongControl.svelte";
+  import PlayListTable from "./PlayListTable.svelte";
+  import NowPlaying from "./NowPlaying.svelte";
   import { ToastContainer, FlatToast } from "svelte-toasts";
-  import { successToast, infoToast } from "../toast";
+  import { infoToast } from "../toast";
 
   import {
     FLAG_YT_SEARCH_POPUP,
@@ -14,9 +17,6 @@
     FLAG_NEXT_SONG_LOADING,
     YT_VIDEO_ID,
     LOCAL_SONG_PATH,
-    PLAYLIST,
-    Song,
-    savePlayList,
     PLAYER_ELEMENT,
     fowardSong,
   } from "../stores";
@@ -26,38 +26,6 @@
     event.preventDefault();
     event.returnValue = "";
   });
-
-  /**
-   * 재생 대기열 내 노래의 순번을 변경하는 함수
-   * @param n 변경할 노래의 인덱스 번호
-   * @param offset 순번 변경 오프셋, 1: UP, -1: DOWN
-   */
-  const songUpDown = (n: number, offset: number = 1) => {
-    if (
-      (n > 0 && offset === 1) ||
-      ($PLAYLIST.queue.length - 1 !== n && offset === -1)
-    ) {
-      const songA: Song = $PLAYLIST.queue[n];
-      const songB: Song = $PLAYLIST.queue[n - 1 * offset];
-      $PLAYLIST.queue[n] = songB;
-      $PLAYLIST.queue[n - 1 * offset] = songA;
-      savePlayList();
-    }
-  };
-
-  /**
-   * 재생 대기열 내 노래를 제거하는 함수
-   * @param n 제거할 노래의 인덱스 번호
-   */
-  const songDel = (n: number) => {
-    if (n >= 0 && n <= $PLAYLIST.queue.length - 1) {
-      if (confirm("정말 재생대기열에서 삭제하시겠습니까?")) {
-        $PLAYLIST.queue.pop(n);
-        savePlayList();
-        successToast("노래를 재생대기열에서 삭제했습니다.");
-      }
-    }
-  };
 
   /**
    * YouTube iframe의 Event handler를 얻는 함수
@@ -86,7 +54,7 @@
       FLAG_PLAYING.set(false);
     } else if (event.detail.data === 5) {
       // video on ready
-      if ($FLAG_PLAYING) $PLAYER_ELEMENT.playVideo();
+      if ($FLAG_PLAYING) ($PLAYER_ELEMENT as any).playVideo();
       FLAG_PLAYER_IS_READY.set(true);
       FLAG_NEXT_SONG_LOADING.set(false);
     }
@@ -114,40 +82,12 @@
     <SongControl />
     <div class="btns">
       <div class="btns">
-        <div
-          class="btn"
-          on:click={() => {
-            FLAG_YT_SEARCH_POPUP.set(!$FLAG_YT_SEARCH_POPUP);
-          }}
-        >
-          YouTube에서 추가
-        </div>
-        <div
-          on:click={() => {
+        <Btn
+          label={"설정"}
+          onClick={() => {
             infoToast("현재 서비스 준비중입니다!");
           }}
-          class="btn"
-        >
-          SoundCloud에서 추가
-        </div>
-      </div>
-      <div class="btns">
-        <div
-          on:click={() => {
-            infoToast("현재 서비스 준비중입니다!");
-          }}
-          class="btn"
-        >
-          내 컴퓨터에서 추가
-        </div>
-        <div
-          on:click={() => {
-            infoToast("현재 서비스 준비중입니다!");
-          }}
-          class="btn"
-        >
-          설정
-        </div>
+        />
       </div>
     </div>
   </div>
@@ -176,45 +116,31 @@
       </div>
       <div class="sub-block">
         <div class="title">Now Playing</div>
-        {#if $PLAYLIST.currentSong !== null}
-          <div class="current-song">
-            <span class="line"
-              >- TITLE: <span class="bold">{$PLAYLIST.currentSong.title}</span
-              ></span
-            >
-            <span class="line">
-              - ARTIST: <span class="bold">{$PLAYLIST.currentSong.artist}</span>
-            </span>
-            <span class="line">
-              - DURATION: <span class="bold"
-                >{$PLAYLIST.currentSong.duration}</span
-              >
-            </span>
-            <span class="line">
-              - PLATFORM: <span class="bold">{$PLAYLIST.currentSong.type}</span>
-            </span>
-            {#if $PLAYLIST.currentSong.type === "youtube"}
-              <span class="line">
-                <a
-                  target="_blank"
-                  href="https://youtube.com/watch?v={$PLAYLIST.currentSong
-                    .songId}"
-                  >https://youtube.com/watch?v={$PLAYLIST.currentSong.songId}</a
-                >
-              </span>
-            {/if}
-          </div>
-        {:else}
-          <div class="current-song-null">현재 재생중인 곡이 없습니다.</div>
-        {/if}
+        <NowPlaying />
       </div>
     </div>
     <div class="block info-area" id="playlist-area">
-      <div class="title">PlayList</div>
+      <div class="title-area">
+        <div class="title">PlayList</div>
+        <div class="btns">
+          <Btn
+            label={"YouTube 음원 추가"}
+            onClick={() => {
+              FLAG_YT_SEARCH_POPUP.set(!$FLAG_YT_SEARCH_POPUP);
+            }}
+          />
+          <Btn
+            label={"로컬 음원파일 추가"}
+            onClick={() => {
+              infoToast("현재 서비스 준비중입니다!");
+            }}
+          />
+        </div>
+      </div>
       <table class="playlist-table">
         <colgroup>
-          <col width="20px" />
-          <col />
+          <col width="40px" />
+          <col width="300px" />
           <col width="150px" />
           <col width="70px" />
           <col width="70px" />
@@ -222,7 +148,7 @@
         </colgroup>
         <thead>
           <tr>
-            <th />
+            <th>NO</th>
             <th>TITLE</th>
             <th>ARTIST</th>
             <th>PLATFORM</th>
@@ -232,74 +158,7 @@
         </thead>
       </table>
       <div class="playlist-table-scrollbox">
-        <table class="playlist-table">
-          <colgroup>
-            <col width="20px" />
-            <col />
-            <col width="150px" />
-            <col width="70px" />
-            <col width="70px" />
-            <col width="100px" />
-          </colgroup>
-          <tbody>
-            {#each $PLAYLIST.queue as song, i}
-              <tr>
-                <td>{i + 1}</td>
-                <td>{song.title}</td>
-                <td>{song.artist}</td>
-                <td>{song.type}</td>
-                <td>{song.duration}</td>
-                <td>
-                  <div
-                    class="song-setting-btn song-up"
-                    on:click={() => {
-                      songUpDown(i);
-                    }}
-                  >
-                    <svg
-                      class="icon"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 320 512"
-                      ><path
-                        d="M9.39 265.4l127.1-128C143.6 131.1 151.8 128 160 128s16.38 3.125 22.63 9.375l127.1 128c9.156 9.156 11.9 22.91 6.943 34.88S300.9 320 287.1 320H32.01c-12.94 0-24.62-7.781-29.58-19.75S.2333 274.5 9.39 265.4z"
-                      /></svg
-                    >
-                  </div>
-                  <div
-                    class="song-setting-btn song-down"
-                    on:click={() => {
-                      songUpDown(i, -1);
-                    }}
-                  >
-                    <svg
-                      class="icon"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 320 512"
-                      ><path
-                        d="M310.6 246.6l-127.1 128C176.4 380.9 168.2 384 160 384s-16.38-3.125-22.63-9.375l-127.1-128C.2244 237.5-2.516 223.7 2.438 211.8S19.07 192 32 192h255.1c12.94 0 24.62 7.781 29.58 19.75S319.8 237.5 310.6 246.6z"
-                      /></svg
-                    >
-                  </div>
-                  <div
-                    class="song-setting-btn song-del"
-                    on:click={() => {
-                      songDel(i);
-                    }}
-                  >
-                    <svg
-                      class="icon"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 320 512"
-                      ><path
-                        d="M310.6 361.4c12.5 12.5 12.5 32.75 0 45.25C304.4 412.9 296.2 416 288 416s-16.38-3.125-22.62-9.375L160 301.3L54.63 406.6C48.38 412.9 40.19 416 32 416S15.63 412.9 9.375 406.6c-12.5-12.5-12.5-32.75 0-45.25l105.4-105.4L9.375 150.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L160 210.8l105.4-105.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-105.4 105.4L310.6 361.4z"
-                      /></svg
-                    >
-                  </div>
-                </td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
+        <PlayListTable />
       </div>
     </div>
   </div>
@@ -315,26 +174,6 @@
     flex-wrap: wrap;
     flex-direction: row;
     gap: 10px;
-
-    .title {
-      color: var(--color1);
-      margin-right: 0.5em;
-    }
-  }
-
-  .btn {
-    white-space: nowrap;
-    padding: 0.5em 1em;
-    border: 1px solid var(--color2);
-    border-radius: 8px;
-    background-color: var(--color1);
-    font-size: 0.8em;
-    color: white;
-    transition: 0.1s;
-  }
-  .btn:hover {
-    cursor: pointer;
-    background-color: var(--color2);
   }
 
   #main-header {
@@ -399,16 +238,6 @@
           margin-left: 1em;
         }
       }
-    }
-
-    .current-song-null {
-      width: 100%;
-      height: calc(100% - 1.5em - 0.8em - 20px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #666;
-      font-size: 0.8em;
     }
 
     #none-song {
@@ -485,8 +314,22 @@
   }
 
   #playlist-area {
+    .title-area {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+
+      .title {
+        margin-top: 10px;
+        width: max-content !important;
+      }
+    }
+
     .playlist-table-scrollbox {
-      max-height: calc(100% - 1.5em - 5px - 0.8em - 30px);
+      height: calc(100% - 1.5em - 5px - 0.8em - 50px);
+      max-height: calc(100% - 1.5em - 5px - 0.8em - 50px);
       overflow-y: auto;
     }
 

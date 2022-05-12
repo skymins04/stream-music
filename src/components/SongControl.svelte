@@ -13,8 +13,10 @@
    * 재생/일시정지 버튼 클릭 이벤트 핸들러
    */
   const clickPlayBtn = () => {
+    const currentSong = $PLAYLIST.currentSong;
+
     // 재생 대기열 및 현재재생중인 노래가 있는지 검사
-    if ($PLAYLIST.queue.length == 0 && $PLAYLIST.currentSong === null) {
+    if ($PLAYLIST.queue.length == 0 && currentSong === null) {
       errorToast("재생대기열에 노래가 없습니다.");
       return;
     }
@@ -23,15 +25,15 @@
     FLAG_PLAYING.set(!$FLAG_PLAYING);
 
     // 재생상태가 재생시작인 경우이고 현재 재생중인 곡이 없는 경우
-    if ($FLAG_PLAYING && $PLAYLIST.currentSong === null) {
+    if ($FLAG_PLAYING && currentSong === null) {
       playSong($FLAG_PLAYING);
     }
     // 현재 재생중인 곡이 있는 경우에서 재생 토글
     else {
-      if ($PLAYLIST.currentSong.type === "youtube") {
-        if ($FLAG_PLAYING) $PLAYER_ELEMENT.playVideo();
-        else $PLAYER_ELEMENT.pauseVideo();
-      } else if ($PLAYLIST.currentSong.type === "local") {
+      if (currentSong?.type === "youtube") {
+        if ($FLAG_PLAYING) ($PLAYER_ELEMENT as any).playVideo();
+        else ($PLAYER_ELEMENT as any).pauseVideo();
+      } else if (currentSong?.type === "local") {
       }
     }
   };
