@@ -64,6 +64,8 @@
     padding-bottom: 20px;
     background-color: var(--color3);
     z-index: 10;
+    // overflow-y: auto;
+    overflow-y: overlay;
 
     .title-area {
       position: absolute;

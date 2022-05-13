@@ -96,6 +96,28 @@ button:focus {
   border-color: #666;
 }
 
+/* ===== Scrollbar CSS ===== */
+/* Firefox */
+* {
+  scrollbar-width: none;
+  scrollbar-color: #939393bb #ffffff00;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 7px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #ffffff00;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #939393bb;
+  border-radius: 7px;
+  border: 0px none #ffffff00;
+}
+
 .player-area iframe {
   width: 100% !important;
   height: 100% !important;
