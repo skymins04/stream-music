@@ -89,7 +89,7 @@
       FLAG_LOADING_SCREEN_SAVER.set(false);
       LOADING_SCREEN_SAVER_MSG.set("");
       FLAG_YT_SEARCH_POPUP.set(false);
-      successToast("재생대기열에 추가되었습니다!");
+      successToast("플레이리스트에 추가되었습니다.");
       ytPlayer = null;
       ytSearchID = "";
     } else if (event.detail.data === 5) {
