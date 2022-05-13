@@ -22,12 +22,9 @@
     FLAG_CLIENT_STATUS,
     YT_VIDEO_ID,
     LOCAL_SONG_PATH,
-    PLAYLIST,
   } from "../common/stores";
 
   import "./protectionLogic";
-
-  FLAG_HISTORY_LIST.set(true);
 </script>
 
 <Protector>
@@ -88,7 +85,6 @@
             label={"설정"}
             onClick={() => {
               infoToast("현재 서비스 준비중입니다!");
-              console.log($PLAYLIST.history);
             }}
           />
         </div>
