@@ -190,6 +190,6 @@ button:focus {
   }
 
   #playlist-area .title {
-    margin-top: 0 !important;
+    margin-bottom: 15px !important;
   }
 }

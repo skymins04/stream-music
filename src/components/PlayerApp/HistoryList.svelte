@@ -1,7 +1,9 @@
 <script lang="ts">
   import { fly } from "svelte/transition";
 
-  import { FLAG_HISTORY_LIST } from "../common/stores";
+  import { FLAG_HISTORY_LIST, PLAYLIST } from "../common/stores";
+
+  console.log($PLAYLIST.history);
 </script>
 
 {#if $FLAG_HISTORY_LIST}
@@ -25,27 +27,22 @@
     </div>
 
     <div class="list">
-      <div class="block" />
-      <div class="block" />
-      <div class="block" />
-      <div class="block" />
-      <div class="block" />
-      <div class="block" />
-      <div class="block" />
+      {#if $PLAYLIST.history.length != 0}
+        {#each $PLAYLIST.history as song}
+          <div class="song">
+            <div class="line">{song.title}</div>
+            <div class="line">{song.artist}</div>
+            <div class="line">{song.duration}</div>
+            <div class="line">{song.type}</div>
+          </div>
+        {/each}
+      {:else}{/if}
+      <!-- <div class="block" /> -->
     </div>
   </div>
 {/if}
 
 <style lang="scss">
-  @keyframes history-list {
-    from {
-      right: -300px;
-    }
-    to {
-      right: 0;
-    }
-  }
-
   #history-list-screensaver {
     position: fixed;
     width: 100%;
@@ -63,8 +60,6 @@
     padding-bottom: 20px;
     background-color: var(--color3);
     z-index: 10;
-    // overflow-y: auto;
-    overflow-y: overlay;
 
     .title-area {
       position: absolute;
@@ -143,13 +138,18 @@
         to(rgba(0, 0, 0, 0))
       );
 
-      .block {
+      .song {
         width: calc(100% - 40px);
         height: 150px;
         box-shadow: 0 0 5px #555;
         margin: 20px 20px 0 20px;
         border-radius: 10px;
         background-color: white;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
       }
     }
   }

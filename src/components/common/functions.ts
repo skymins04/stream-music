@@ -60,10 +60,11 @@ export const playSong = (pause: boolean) => {
         LOCAL_SONG_PATH.set(get(PLAYLIST).queue[0].songId);
         break;
     }
-    const song = get(PLAYLIST).queue.shift();
+    const song = get(PLAYLIST).queue[0];
+    get(PLAYLIST).queue.shift();
     get(PLAYLIST).currentSong = song === undefined ? null : song;
     if (get(PLAYLIST).history.length == 50) get(PLAYLIST).history.splice(49, 1); // 히스토리는 최대 50개까지만 저장
-    get(PLAYLIST).history.unshift(get(PLAYLIST).queue[0]);
+    get(PLAYLIST).history.unshift(song);
     savePlayList();
   } else {
     // 현재 재생중인 노래가 있는 경우
