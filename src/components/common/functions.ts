@@ -3,11 +3,13 @@ import {
   FLAG_PLAYING,
   FLAG_PLAYER_IS_READY,
   FLAG_NEXT_SONG_LOADING,
+  FLAG_NETWORK_STATUS,
   YT_VIDEO_ID,
   LOCAL_SONG_PATH,
   PLAYER_ELEMENT,
   PLAYLIST,
 } from "./stores";
+import { errorToast } from "./toast";
 
 /**
  * PLAYLIST 객체를 trigging Subscriber하고 LocalStorage에 저장하는 함수
@@ -46,7 +48,13 @@ export const playSong = (pause: boolean) => {
     // 현재 재생중인 노래가 없는 상태에서 재생을 시작하는 경우
     switch (get(PLAYLIST).queue[0].type) {
       case "youtube":
-        YT_VIDEO_ID.set(get(PLAYLIST).queue[0].songId);
+        if (get(FLAG_NETWORK_STATUS))
+          YT_VIDEO_ID.set(get(PLAYLIST).queue[0].songId);
+        else {
+          FLAG_PLAYING.set(false);
+          errorToast("YouTube 음원 재생을 위해 네트워크 연결이 필요합니다.");
+          return;
+        }
         break;
       case "local":
         LOCAL_SONG_PATH.set(get(PLAYLIST).queue[0].songId);
