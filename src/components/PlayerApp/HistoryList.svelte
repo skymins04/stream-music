@@ -1,6 +1,7 @@
 <script lang="ts">
   import { fly } from "svelte/transition";
-  import { FLAG_HISTORY_LIST } from "../stores";
+
+  import { FLAG_HISTORY_LIST } from "../common/stores";
 </script>
 
 {#if $FLAG_HISTORY_LIST}
@@ -12,7 +13,9 @@
   />
   <div id="history-list-area" transition:fly={{ x: 300, duration: 500 }}>
     <div class="title-area">
-      <div class="title">History</div>
+      <div class="title">
+        History<span class="subtitle">최근 재생 기록(최대 50개까지)</span>
+      </div>
       <div
         class="exit-btn"
         on:click={() => {
@@ -41,10 +44,6 @@
     to {
       right: 0;
     }
-  }
-
-  .display-none {
-    display: none !important;
   }
 
   #history-list-screensaver {
@@ -80,6 +79,12 @@
       .title {
         color: white;
         font-size: 1.5em;
+
+        .subtitle {
+          display: block;
+          font-size: 0.5em;
+          margin-top: 0.5em;
+        }
       }
 
       .exit-btn {

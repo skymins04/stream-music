@@ -1,8 +1,11 @@
 <script lang="ts">
-  import { PLAYLIST, Song, savePlayList } from "../stores";
-  import { successToast } from "../toast";
+  import EmptyCover from "../common/EmptyCover.svelte";
+
   import WritableText from "./WritableText.svelte";
-  import EmptyCover from "./EmptyCover.svelte";
+
+  import { successToast } from "../common/toast";
+  import { PLAYLIST, Song } from "../common/stores";
+  import { savePlayList } from "../common/functions";
 
   /**
    * 재생 대기열 내 노래의 순번을 변경하는 함수
@@ -144,25 +147,10 @@
       border-bottom: 1px solid #ebebeb;
     }
 
-    th {
-      color: #666;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-      font-size: 0.6em;
-    }
-
     td {
       font-size: 0.8em;
       padding: 5px 0;
-    }
-
-    th,
-    td {
       text-align: center;
-    }
-
-    .playlist-thumbnail {
-      height: 50px;
     }
 
     .song-setting-btn {

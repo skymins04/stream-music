@@ -1,6 +1,8 @@
 <script lang="ts">
   import { get } from "svelte/store";
-  import { PLAYLIST, savePlayList } from "../stores";
+
+  import { PLAYLIST } from "../common/stores";
+  import { savePlayList } from "../common/functions";
 
   interface WritableTextOption {
     text: string;

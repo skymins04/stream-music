@@ -1,6 +1,10 @@
-import App from "./components/App.svelte";
+import App from "./App.svelte";
 import { get } from "svelte/store";
-import { PLAYLIST, YT_VIDEO_ID, LOCAL_SONG_PATH } from "./stores";
+import {
+  PLAYLIST,
+  YT_VIDEO_ID,
+  LOCAL_SONG_PATH,
+} from "./components/common/stores";
 
 const localStoragePlayList = localStorage.getItem("streamMusicPlayList");
 if (localStoragePlayList !== null)

@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { PLAYLIST } from "../stores";
-  import EmptyCover from "./EmptyCover.svelte";
+  import EmptyCover from "../common/EmptyCover.svelte";
+
   import WritableText from "./WritableText.svelte";
+
+  import { PLAYLIST } from "../common/stores";
 </script>
 
 {#if $PLAYLIST.currentSong !== null}

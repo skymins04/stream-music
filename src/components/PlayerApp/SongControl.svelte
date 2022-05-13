@@ -1,13 +1,7 @@
 <script lang="ts">
-  import { errorToast } from "../toast";
-  import {
-    FLAG_PLAYING,
-    PLAYLIST,
-    PLAYER_ELEMENT,
-    playSong,
-    stopSong,
-    fowardSong,
-  } from "../stores";
+  import { errorToast } from "../common/toast";
+  import { FLAG_PLAYING, PLAYLIST, PLAYER_ELEMENT } from "../common/stores";
+  import { playSong, stopSong, fowardSong } from "../common/functions";
 
   /**
    * 재생/일시정지 버튼 클릭 이벤트 핸들러

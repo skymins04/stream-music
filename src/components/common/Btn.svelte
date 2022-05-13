@@ -18,13 +18,6 @@
     font-weight: 400;
     color: white;
     transition: 0.1s;
-
-    .icon {
-      width: 1em;
-      height: 1em;
-      fill: white;
-      transition: 0.1s;
-    }
   }
   .btn:hover {
     cursor: pointer;

@@ -1,19 +1,22 @@
 <script lang="ts">
-  import { errorToast, successToast } from "../toast";
   import YouTube from "svelte-youtube";
 
+  import { errorToast, successToast } from "../common/toast";
   import {
     FLAG_LOADING_SCREEN_SAVER,
     FLAG_YT_SEARCH_POPUP,
     LOADING_SCREEN_SAVER_MSG,
     PLAYLIST,
-    savePlayList,
-  } from "../stores";
+  } from "../common/stores";
+  import { savePlayList } from "../common/functions";
 
   let ytURL: string;
   let ytSearchID: string = "";
   let ytPlayer: any = null;
 
+  /**
+   * 재생 대기열에 ytSearchID에 해당하는 YouTube 영상 정보를 추가하는 함수
+   */
   const addQueueYT = async () => {
     const ytURLRegExp =
       /^(http:|https:)?(\/\/)?(www\.)?(youtube.com|youtu.be)\/(watch|embed)?(\?v=|\/)?(\S+)?$/g;
@@ -41,6 +44,10 @@
     }, 1000);
   };
 
+  /**
+   * 초(second)를 "mm:ss" 형식으로 변환하는 함수
+   * @param sec
+   */
   const getDurationNumToStr = (sec: number) => {
     const M = Math.floor(sec / 60);
     const S = sec - M * 60;
@@ -51,10 +58,21 @@
     return `${durationM}:${durationS}`;
   };
 
+  /**
+   * YouTube Player iframe API onReady 함수.
+   * onReady 시 ytPlayer에 Player 객체를 가져옴
+   * @param event
+   */
   const onReadyYoutubePlayer = (event) => {
     ytPlayer = event.detail.target;
   };
 
+  /**
+   * YouTube Player iframe API onStateChange 함수.
+   * 재생준비완료상태(5)가 되면 Player를 음소거한 후 재생시킨 뒤,
+   * 재생상태(1)가 되면 일시정지 한 후 해당 영상 정보를 재생대기열에 추가시킴.
+   * @param event
+   */
   const onStateChangeYoutubePlayer = (event) => {
     if (event.detail.data === 1) {
       ytPlayer.pauseVideo();
@@ -96,10 +114,6 @@
           type="text"
           placeholder="ex) https://www.youtube.com/watch?v=-Y9VtoPvtuM"
           bind:value={ytURL}
-          on:keypress={((event) => {
-            const key = event.key || event.keyCode;
-            if (key === "Enter" || key === 13) return addQueueYT;
-          })(event)}
         />
         <button on:click={addQueueYT}>추가</button>
       </div>
@@ -218,47 +232,7 @@
         margin-bottom: 5px;
         input {
           width: 100% !important;
-          min-width: 18em;
-        }
-      }
-    }
-  }
-
-  #yt-search-results {
-    width: 100%;
-    height: 320px;
-    margin-top: 20px;
-    overflow-y: scroll;
-
-    #yt-search-result {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      height: 120px;
-      margin-bottom: 10px;
-
-      .thumb,
-      img {
-        height: 100%;
-      }
-
-      .info {
-        height: 100%;
-        padding-left: 10px;
-
-        .title {
-          font-weight: bolder;
-          font-size: 1.2em;
-          color: black;
-        }
-        .upload-date,
-        .desc {
-          color: #666;
-          font-size: 0.8em;
-        }
-
-        .upload-date {
-          margin-bottom: 10px;
+          min-width: 13em;
         }
       }
     }

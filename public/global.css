@@ -128,7 +128,35 @@ button:focus {
   height: 100% !important;
 }
 
+.connection-indicators {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  z-index: 2;
+}
+
+.connection-indicators .indicator {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.2em;
+}
+
+.connection-indicators .indicator span {
+  font-size: 0.7em;
+}
+
+.connection-indicators .indicator .icon {
+  width: 0.7em;
+  height: 0.7em;
+  fill: #555;
+}
+
 @media (max-width: 800px) {
+  .connection-indicators {
+    top: 40px !important;
+  }
+
   .controller {
     height: 100px !important;
   }
@@ -154,8 +182,11 @@ button:focus {
     max-height: calc(100% - 1.5em - 5px - 0.8em - 60px) !important;
   }
 
+  .interface.link .viewport-title {
+    font-size: 1.2em !important;
+  }
   .interface.link .frm-input {
-    width: 100% !important;
+    width: calc(100% - 3em) !important;
   }
 
   #playlist-area .title {
