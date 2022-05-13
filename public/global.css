@@ -5,6 +5,8 @@
   --color2: #db3500;
   --color3: #db3500dd;
   --color4: #d6c4bf;
+  --scrollbar-thumb-color: #00000099;
+  --scrollbar-bg-color: #00000000;
 }
 
 @keyframes opacityFadeIn {
@@ -100,7 +102,7 @@ button:focus {
 /* Firefox */
 * {
   scrollbar-width: none;
-  scrollbar-color: #939393bb #ffffff00;
+  scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-bg-color);
 }
 
 /* Chrome, Edge, and Safari */
@@ -109,13 +111,13 @@ button:focus {
 }
 
 *::-webkit-scrollbar-track {
-  background: #ffffff00;
+  background: var(--scrollbar-bg-color);
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #939393bb;
+  background-color: var(--scrollbar-thumb-color);
   border-radius: 7px;
-  border: 0px none #ffffff00;
+  border: 0px none var(--scrollbar-bg-color);
 }
 
 .player-area iframe {
