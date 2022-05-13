@@ -3375,6 +3375,12 @@ var app = (function () {
      * @param pause 재생상태 여부, true: 재생, false: 일시정지
      */
     const stopSong = (pause = false) => {
+        const currentSong = get_store_value(PLAYLIST).currentSong;
+        if (currentSong !== null) {
+            if (get_store_value(PLAYLIST).history.length == 50)
+                get_store_value(PLAYLIST).history.splice(49, 1); // 히스토리는 최대 50개까지만 저장
+            get_store_value(PLAYLIST).history.unshift(currentSong);
+        }
         get_store_value(PLAYLIST).currentSong = null;
         YT_VIDEO_ID.set("");
         LOCAL_SONG_PATH.set("");
@@ -3406,12 +3412,8 @@ var app = (function () {
                     LOCAL_SONG_PATH.set(get_store_value(PLAYLIST).queue[0].songId);
                     break;
             }
-            const song = get_store_value(PLAYLIST).queue[0];
+            get_store_value(PLAYLIST).currentSong = get_store_value(PLAYLIST).queue[0];
             get_store_value(PLAYLIST).queue.shift();
-            get_store_value(PLAYLIST).currentSong = song === undefined ? null : song;
-            if (get_store_value(PLAYLIST).history.length == 50)
-                get_store_value(PLAYLIST).history.splice(49, 1); // 히스토리는 최대 50개까지만 저장
-            get_store_value(PLAYLIST).history.unshift(song);
             savePlayList();
         }
         else {
@@ -4750,20 +4752,20 @@ var app = (function () {
     			div4 = element("div");
     			if_block.c();
     			attr_dev(div0, "id", "history-list-screensaver");
-    			attr_dev(div0, "class", "svelte-1o3cli3");
+    			attr_dev(div0, "class", "svelte-1rocfae");
     			add_location(div0, file$4, 6, 2, 193);
-    			attr_dev(span, "class", "subtitle svelte-1o3cli3");
+    			attr_dev(span, "class", "subtitle svelte-1rocfae");
     			add_location(span, file$4, 15, 15, 446);
-    			attr_dev(div1, "class", "title svelte-1o3cli3");
+    			attr_dev(div1, "class", "title svelte-1rocfae");
     			add_location(div1, file$4, 14, 6, 411);
-    			attr_dev(div2, "class", "exit-btn svelte-1o3cli3");
+    			attr_dev(div2, "class", "exit-btn svelte-1rocfae");
     			add_location(div2, file$4, 17, 6, 514);
-    			attr_dev(div3, "class", "title-area svelte-1o3cli3");
+    			attr_dev(div3, "class", "title-area svelte-1rocfae");
     			add_location(div3, file$4, 13, 4, 380);
-    			attr_dev(div4, "class", "list svelte-1o3cli3");
+    			attr_dev(div4, "class", "list svelte-1rocfae");
     			add_location(div4, file$4, 25, 4, 646);
     			attr_dev(div5, "id", "history-list-area");
-    			attr_dev(div5, "class", "svelte-1o3cli3");
+    			attr_dev(div5, "class", "svelte-1rocfae");
     			add_location(div5, file$4, 12, 2, 304);
     		},
     		m: function mount(target, anchor) {
@@ -4958,15 +4960,15 @@ var app = (function () {
     			div3 = element("div");
     			t6 = text(t6_value);
     			t7 = space();
-    			attr_dev(div0, "class", "line");
+    			attr_dev(div0, "class", "line svelte-1rocfae");
     			add_location(div0, file$4, 29, 12, 790);
-    			attr_dev(div1, "class", "line");
+    			attr_dev(div1, "class", "line svelte-1rocfae");
     			add_location(div1, file$4, 30, 12, 839);
-    			attr_dev(div2, "class", "line");
+    			attr_dev(div2, "class", "line svelte-1rocfae");
     			add_location(div2, file$4, 31, 12, 889);
-    			attr_dev(div3, "class", "line");
+    			attr_dev(div3, "class", "line svelte-1rocfae");
     			add_location(div3, file$4, 32, 12, 941);
-    			attr_dev(div4, "class", "song svelte-1o3cli3");
+    			attr_dev(div4, "class", "song svelte-1rocfae");
     			add_location(div4, file$4, 28, 10, 759);
     		},
     		m: function mount(target, anchor) {
@@ -7475,7 +7477,7 @@ var app = (function () {
     const { console: console_1 } = globals;
     const file = "src/components/PlayerApp/index.svelte";
 
-    // (18:2) <ToastContainer let:data>
+    // (19:2) <ToastContainer let:data>
     function create_default_slot_1(ctx) {
     	let flattoast;
     	let current;
@@ -7516,14 +7518,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_1.name,
     		type: "slot",
-    		source: "(18:2) <ToastContainer let:data>",
+    		source: "(19:2) <ToastContainer let:data>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (22:2) {#if $FLAG_LOADING_SCREEN_SAVER}
+    // (23:2) {#if $FLAG_LOADING_SCREEN_SAVER}
     function create_if_block_3(ctx) {
     	let loadingscreensaver;
     	let current;
@@ -7555,14 +7557,14 @@ var app = (function () {
     		block,
     		id: create_if_block_3.name,
     		type: "if",
-    		source: "(22:2) {#if $FLAG_LOADING_SCREEN_SAVER}",
+    		source: "(23:2) {#if $FLAG_LOADING_SCREEN_SAVER}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (25:2) {#if $FLAG_YT_SEARCH_POPUP}
+    // (26:2) {#if $FLAG_YT_SEARCH_POPUP}
     function create_if_block_2(ctx) {
     	let ytsearch;
     	let current;
@@ -7594,14 +7596,14 @@ var app = (function () {
     		block,
     		id: create_if_block_2.name,
     		type: "if",
-    		source: "(25:2) {#if $FLAG_YT_SEARCH_POPUP}",
+    		source: "(26:2) {#if $FLAG_YT_SEARCH_POPUP}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (87:43) {:else}
+    // (88:43) {:else}
     function create_else_block(ctx) {
     	let div;
     	let svg;
@@ -7613,14 +7615,14 @@ var app = (function () {
     			svg = svg_element("svg");
     			path = svg_element("path");
     			attr_dev(path, "d", "M512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM176 168V344C176 352.7 180.7 360.7 188.3 364.9C195.8 369.2 205.1 369 212.5 364.5L356.5 276.5C363.6 272.1 368 264.4 368 256C368 247.6 363.6 239.9 356.5 235.5L212.5 147.5C205.1 142.1 195.8 142.8 188.3 147.1C180.7 151.3 176 159.3 176 168V168z");
-    			add_location(path, file, 92, 17, 3617);
+    			add_location(path, file, 93, 17, 3646);
     			attr_dev(svg, "class", "icon play svelte-1csrg2k");
     			attr_dev(svg, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg, "viewBox", "0 0 512 512");
-    			add_location(svg, file, 88, 14, 3472);
+    			add_location(svg, file, 89, 14, 3501);
     			attr_dev(div, "id", "none-song");
     			attr_dev(div, "class", "svelte-1csrg2k");
-    			add_location(div, file, 87, 12, 3437);
+    			add_location(div, file, 88, 12, 3466);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -7638,14 +7640,14 @@ var app = (function () {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(87:43) {:else}",
+    		source: "(88:43) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (87:43) 
+    // (88:43) 
     function create_if_block_1(ctx) {
     	const block = {
     		c: noop,
@@ -7659,14 +7661,14 @@ var app = (function () {
     		block,
     		id: create_if_block_1.name,
     		type: "if",
-    		source: "(87:43) ",
+    		source: "(88:43) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (85:10) {#if $YT_VIDEO_ID != ""}
+    // (86:10) {#if $YT_VIDEO_ID != ""}
     function create_if_block(ctx) {
     	let ytplayer;
     	let current;
@@ -7698,14 +7700,14 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(85:10) {#if $YT_VIDEO_ID != \\\"\\\"}",
+    		source: "(86:10) {#if $YT_VIDEO_ID != \\\"\\\"}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (17:0) <Protector>
+    // (18:0) <Protector>
     function create_default_slot(ctx) {
     	let toastcontainer;
     	let t0;
@@ -7978,95 +7980,95 @@ var app = (function () {
     			div13 = element("div");
     			create_component(playlisttable.$$.fragment);
     			attr_dev(div0, "class", "bg svelte-1csrg2k");
-    			add_location(div0, file, 31, 4, 1098);
+    			add_location(div0, file, 32, 4, 1127);
     			attr_dev(h1, "class", "svelte-1csrg2k");
-    			add_location(h1, file, 32, 4, 1121);
+    			add_location(h1, file, 33, 4, 1150);
     			attr_dev(path0, "d", "M319.1 351.1c-35.35 0-64 28.66-64 64.01s28.66 64.01 64 64.01c35.34 0 64-28.66 64-64.01S355.3 351.1 319.1 351.1zM320 191.1c-70.25 0-137.9 25.6-190.5 72.03C116.3 275.7 115 295.9 126.7 309.2C138.5 322.4 158.7 323.7 171.9 312C212.8 275.9 265.4 256 320 256s107.3 19.88 148.1 56C474.2 317.4 481.8 320 489.3 320c8.844 0 17.66-3.656 24-10.81C525 295.9 523.8 275.7 510.5 264C457.9 217.6 390.3 191.1 320 191.1zM630.2 156.7C546.3 76.28 436.2 32 320 32S93.69 76.28 9.844 156.7c-12.75 12.25-13.16 32.5-.9375 45.25c12.22 12.78 32.47 13.12 45.25 .9375C125.1 133.1 220.4 96 320 96s193.1 37.97 265.8 106.9C592.1 208.8 600 211.8 608 211.8c8.406 0 16.81-3.281 23.09-9.844C643.3 189.2 642.9 168.1 630.2 156.7z");
-    			add_location(path0, file, 39, 11, 1338);
+    			add_location(path0, file, 40, 11, 1367);
     			attr_dev(svg0, "class", "icon");
     			attr_dev(svg0, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg0, "viewBox", "0 0 640 512");
-    			add_location(svg0, file, 35, 8, 1222);
-    			add_location(span0, file, 43, 8, 2086);
-    			add_location(span1, file, 44, 8, 2117);
+    			add_location(svg0, file, 36, 8, 1251);
+    			add_location(span0, file, 44, 8, 2115);
+    			add_location(span1, file, 45, 8, 2146);
     			attr_dev(span2, "class", "indicator");
-    			add_location(span2, file, 34, 6, 1189);
+    			add_location(span2, file, 35, 6, 1218);
     			attr_dev(path1, "d", "M528 0h-480C21.5 0 0 21.5 0 48v320C0 394.5 21.5 416 48 416h192L224 464H152C138.8 464 128 474.8 128 488S138.8 512 152 512h272c13.25 0 24-10.75 24-24s-10.75-24-24-24H352L336 416h192c26.5 0 48-21.5 48-48v-320C576 21.5 554.5 0 528 0zM512 288H64V64h448V288z");
-    			add_location(path1, file, 53, 11, 2362);
+    			add_location(path1, file, 54, 11, 2391);
     			attr_dev(svg1, "class", "icon");
     			attr_dev(svg1, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg1, "viewBox", "0 0 576 512");
-    			add_location(svg1, file, 49, 8, 2246);
-    			add_location(span3, file, 57, 8, 2673);
-    			add_location(span4, file, 58, 8, 2718);
+    			add_location(svg1, file, 50, 8, 2275);
+    			add_location(span3, file, 58, 8, 2702);
+    			add_location(span4, file, 59, 8, 2747);
     			attr_dev(span5, "class", "indicator");
-    			add_location(span5, file, 48, 6, 2213);
+    			add_location(span5, file, 49, 6, 2242);
     			attr_dev(div1, "class", "connection-indicators");
-    			add_location(div1, file, 33, 4, 1147);
+    			add_location(div1, file, 34, 4, 1176);
     			attr_dev(div2, "id", "main-header");
     			attr_dev(div2, "class", "svelte-1csrg2k");
-    			add_location(div2, file, 30, 2, 1071);
+    			add_location(div2, file, 31, 2, 1100);
     			attr_dev(div3, "class", "btns svelte-1csrg2k");
-    			add_location(div3, file, 69, 8, 2945);
+    			add_location(div3, file, 70, 8, 2974);
     			attr_dev(div4, "class", "btns svelte-1csrg2k");
-    			add_location(div4, file, 68, 6, 2918);
+    			add_location(div4, file, 69, 6, 2947);
     			attr_dev(div5, "class", "block controller svelte-1csrg2k");
-    			add_location(div5, file, 66, 4, 2859);
+    			add_location(div5, file, 67, 4, 2888);
     			attr_dev(div6, "class", "sub-block player-area svelte-1csrg2k");
-    			add_location(div6, file, 83, 8, 3278);
+    			add_location(div6, file, 84, 8, 3307);
     			attr_dev(div7, "class", "title svelte-1csrg2k");
-    			add_location(div7, file, 100, 10, 4126);
+    			add_location(div7, file, 101, 10, 4155);
     			attr_dev(div8, "class", "sub-block svelte-1csrg2k");
-    			add_location(div8, file, 99, 8, 4092);
+    			add_location(div8, file, 100, 8, 4121);
     			attr_dev(div9, "class", "block info-area svelte-1csrg2k");
     			attr_dev(div9, "id", "song-area");
-    			add_location(div9, file, 82, 6, 3225);
+    			add_location(div9, file, 83, 6, 3254);
     			attr_dev(div10, "class", "title svelte-1csrg2k");
-    			add_location(div10, file, 106, 10, 4314);
+    			add_location(div10, file, 107, 10, 4343);
     			attr_dev(div11, "class", "btns svelte-1csrg2k");
-    			add_location(div11, file, 107, 10, 4358);
+    			add_location(div11, file, 108, 10, 4387);
     			attr_dev(div12, "class", "title-area svelte-1csrg2k");
-    			add_location(div12, file, 105, 8, 4279);
+    			add_location(div12, file, 106, 8, 4308);
     			attr_dev(col0, "width", "40px");
-    			add_location(col0, file, 130, 12, 5735);
+    			add_location(col0, file, 131, 12, 5764);
     			attr_dev(col1, "width", "300px");
-    			add_location(col1, file, 131, 12, 5768);
+    			add_location(col1, file, 132, 12, 5797);
     			attr_dev(col2, "width", "150px");
-    			add_location(col2, file, 132, 12, 5802);
+    			add_location(col2, file, 133, 12, 5831);
     			attr_dev(col3, "width", "70px");
-    			add_location(col3, file, 133, 12, 5836);
+    			add_location(col3, file, 134, 12, 5865);
     			attr_dev(col4, "width", "70px");
-    			add_location(col4, file, 134, 12, 5869);
+    			add_location(col4, file, 135, 12, 5898);
     			attr_dev(col5, "width", "100px");
-    			add_location(col5, file, 135, 12, 5902);
-    			add_location(colgroup, file, 129, 10, 5712);
+    			add_location(col5, file, 136, 12, 5931);
+    			add_location(colgroup, file, 130, 10, 5741);
     			attr_dev(th0, "class", "svelte-1csrg2k");
-    			add_location(th0, file, 139, 14, 5995);
+    			add_location(th0, file, 140, 14, 6024);
     			attr_dev(th1, "class", "svelte-1csrg2k");
-    			add_location(th1, file, 140, 14, 6021);
+    			add_location(th1, file, 141, 14, 6050);
     			attr_dev(th2, "class", "svelte-1csrg2k");
-    			add_location(th2, file, 141, 14, 6050);
+    			add_location(th2, file, 142, 14, 6079);
     			attr_dev(th3, "class", "svelte-1csrg2k");
-    			add_location(th3, file, 142, 14, 6080);
+    			add_location(th3, file, 143, 14, 6109);
     			attr_dev(th4, "class", "svelte-1csrg2k");
-    			add_location(th4, file, 143, 14, 6112);
+    			add_location(th4, file, 144, 14, 6141);
     			attr_dev(th5, "class", "svelte-1csrg2k");
-    			add_location(th5, file, 144, 14, 6144);
+    			add_location(th5, file, 145, 14, 6173);
     			attr_dev(tr, "class", "svelte-1csrg2k");
-    			add_location(tr, file, 138, 12, 5976);
-    			add_location(thead, file, 137, 10, 5956);
+    			add_location(tr, file, 139, 12, 6005);
+    			add_location(thead, file, 138, 10, 5985);
     			attr_dev(table, "class", "playlist-table svelte-1csrg2k");
-    			add_location(table, file, 128, 8, 5671);
+    			add_location(table, file, 129, 8, 5700);
     			attr_dev(div13, "class", "playlist-table-scrollbox svelte-1csrg2k");
-    			add_location(div13, file, 148, 8, 6223);
+    			add_location(div13, file, 149, 8, 6252);
     			attr_dev(div14, "class", "block info-area svelte-1csrg2k");
     			attr_dev(div14, "id", "playlist-area");
-    			add_location(div14, file, 104, 6, 4222);
+    			add_location(div14, file, 105, 6, 4251);
     			attr_dev(div15, "class", "infomation svelte-1csrg2k");
-    			add_location(div15, file, 81, 4, 3194);
+    			add_location(div15, file, 82, 4, 3223);
     			attr_dev(div16, "id", "main-viewport");
     			attr_dev(div16, "class", "svelte-1csrg2k");
-    			add_location(div16, file, 65, 2, 2830);
+    			add_location(div16, file, 66, 2, 2859);
     		},
     		m: function mount(target, anchor) {
     			mount_component(toastcontainer, target, anchor);
@@ -8315,7 +8317,7 @@ var app = (function () {
     		block,
     		id: create_default_slot.name,
     		type: "slot",
-    		source: "(17:0) <Protector>",
+    		source: "(18:0) <Protector>",
     		ctx
     	});
 
@@ -8406,6 +8408,7 @@ var app = (function () {
     	component_subscribe($$self, FLAG_HISTORY_LIST, $$value => $$invalidate(7, $FLAG_HISTORY_LIST = $$value));
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots('PlayerApp', slots, []);
+    	FLAG_HISTORY_LIST.set(true);
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {

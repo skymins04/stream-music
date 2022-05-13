@@ -150,6 +150,10 @@
         align-items: flex-start;
         flex-direction: column;
         gap: 5px;
+
+        .line {
+          font-size: 0.8em;
+        }
       }
     }
   }

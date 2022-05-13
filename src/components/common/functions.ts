@@ -27,6 +27,11 @@ export const savePlayList = () => {
  * @param pause 재생상태 여부, true: 재생, false: 일시정지
  */
 export const stopSong = (pause: boolean = false) => {
+  const currentSong = get(PLAYLIST).currentSong;
+  if (currentSong !== null) {
+    if (get(PLAYLIST).history.length == 50) get(PLAYLIST).history.splice(49, 1); // 히스토리는 최대 50개까지만 저장
+    get(PLAYLIST).history.unshift(currentSong);
+  }
   get(PLAYLIST).currentSong = null;
   YT_VIDEO_ID.set("");
   LOCAL_SONG_PATH.set("");
@@ -60,11 +65,8 @@ export const playSong = (pause: boolean) => {
         LOCAL_SONG_PATH.set(get(PLAYLIST).queue[0].songId);
         break;
     }
-    const song = get(PLAYLIST).queue[0];
+    get(PLAYLIST).currentSong = get(PLAYLIST).queue[0];
     get(PLAYLIST).queue.shift();
-    get(PLAYLIST).currentSong = song === undefined ? null : song;
-    if (get(PLAYLIST).history.length == 50) get(PLAYLIST).history.splice(49, 1); // 히스토리는 최대 50개까지만 저장
-    get(PLAYLIST).history.unshift(song);
     savePlayList();
   } else {
     // 현재 재생중인 노래가 있는 경우

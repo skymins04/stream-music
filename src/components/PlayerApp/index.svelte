@@ -26,6 +26,8 @@
   } from "../common/stores";
 
   import "./protectionLogic";
+
+  FLAG_HISTORY_LIST.set(true);
 </script>
 
 <Protector>
