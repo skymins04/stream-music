@@ -2750,22 +2750,27 @@ var app = (function () {
     	}
     }
 
+    const FLAG_ALLOW_MOBILE = writable(false); // 모바일 기기 접속 허용 여부 플래그
     const FLAG_YT_SEARCH_POPUP = writable(false); // YouTube 음원 추가 팝업 플래그
     const FLAG_LOADING_SCREEN_SAVER = writable(false); // 로딩 스크린 세이버 플래그
     const FLAG_PLAYING = writable(false); // 재생 여부 플래그
     const FLAG_PLAYER_IS_READY = writable(false); // YouTube iframe의 Video on ready 여부 플래그
+    const FLAG_PLAYER_IS_BUFFERING = writable(false); // YouTube iframe의 Video on buffering 여부 플래그
     const FLAG_NEXT_SONG_LOADING = writable(false); // 재생 대기열 내의 다음곡을 로딩중인지 여부 플래그
     const FLAG_HISTORY_LIST = writable(false); // History List 토글 플래그
     const FLAG_NETWORK_STATUS = writable(false); // 네트워크 연결 상태 플래그
     const FLAG_CLIENT_STATUS = writable(false); // STREAM-MUSIC 클라이언트 연결 상태 플래그
     const FLAG_PROTECTOR = writable(false); // 서비스 보호화면 활성화 플래그
-    const FLAG_ON_CHANGE_VOLUME = writable(false); // 볼륨 조절 중인 여부 플래그
+    const FLAG_ON_CHANGE_VOLUME = writable(false); // Player Volume 조절 중인 여부 플래그
+    const FLAG_ON_CHANGE_CURRENT_TIME = writable(false); // Player currentTime 조절 중인 여부 플래그
     const LOADING_SCREEN_SAVER_MSG = writable(""); // 로딩 스크린 세이버 메세지
     const YT_VIDEO_ID = writable(""); // YouTube iframe Video ID
     const LOCAL_SONG_PATH = writable(""); // 로컬 음원 파일 경로
     const PLAYER_ELEMENT = writable({}); // 플레이어 조작 객체
     const PROTECTOR_CONTENT = writable(""); // 서비스 보호화면 활성화 플래그
     const PLAYER_VOLUME = writable(0); // 플레이어 볼륨 값
+    const PLAYER_CURRENT_TIME = writable(0); // 플레이어 현재 재생 시간
+    const PLAYER_DURATION = writable("00:00"); // 플레이어 총 재생 길이
     const PLAYLIST = writable({
         // 현재재생곡, 재생대기열, 히스로리 객체
         currentSong: null,
@@ -3112,8 +3117,8 @@ var app = (function () {
     // (9:0) {:else}
     function create_else_block$5(ctx) {
     	let current;
-    	const default_slot_template = /*#slots*/ ctx[3].default;
-    	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[2], null);
+    	const default_slot_template = /*#slots*/ ctx[4].default;
+    	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[3], null);
 
     	const block = {
     		c: function create() {
@@ -3128,15 +3133,15 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			if (default_slot) {
-    				if (default_slot.p && (!current || dirty & /*$$scope*/ 4)) {
+    				if (default_slot.p && (!current || dirty & /*$$scope*/ 8)) {
     					update_slot_base(
     						default_slot,
     						default_slot_template,
     						ctx,
-    						/*$$scope*/ ctx[2],
+    						/*$$scope*/ ctx[3],
     						!current
-    						? get_all_dirty_from_scope(/*$$scope*/ ctx[2])
-    						: get_slot_changes(default_slot_template, /*$$scope*/ ctx[2], dirty, null),
+    						? get_all_dirty_from_scope(/*$$scope*/ ctx[3])
+    						: get_slot_changes(default_slot_template, /*$$scope*/ ctx[3], dirty, null),
     						null
     					);
     				}
@@ -3167,7 +3172,7 @@ var app = (function () {
     	return block;
     }
 
-    // (4:0) {#if $FLAG_PROTECTOR}
+    // (4:0) {#if $FLAG_PROTECTOR && !$FLAG_ALLOW_MOBILE}
     function create_if_block$6(ctx) {
     	let div1;
     	let html_tag;
@@ -3183,18 +3188,18 @@ var app = (function () {
     			div0.textContent = "STREAM-MUSIC";
     			html_tag.a = t0;
     			attr_dev(div0, "class", "block svelte-10twiiy");
-    			add_location(div0, file$a, 6, 4, 174);
+    			add_location(div0, file$a, 6, 4, 217);
     			attr_dev(div1, "class", "protector svelte-10twiiy");
-    			add_location(div1, file$a, 4, 2, 115);
+    			add_location(div1, file$a, 4, 2, 158);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div1, anchor);
-    			html_tag.m(/*$PROTECTOR_CONTENT*/ ctx[1], div1);
+    			html_tag.m(/*$PROTECTOR_CONTENT*/ ctx[2], div1);
     			append_dev(div1, t0);
     			append_dev(div1, div0);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*$PROTECTOR_CONTENT*/ 2) html_tag.p(/*$PROTECTOR_CONTENT*/ ctx[1]);
+    			if (dirty & /*$PROTECTOR_CONTENT*/ 4) html_tag.p(/*$PROTECTOR_CONTENT*/ ctx[2]);
     		},
     		i: noop,
     		o: noop,
@@ -3207,7 +3212,7 @@ var app = (function () {
     		block,
     		id: create_if_block$6.name,
     		type: "if",
-    		source: "(4:0) {#if $FLAG_PROTECTOR}",
+    		source: "(4:0) {#if $FLAG_PROTECTOR && !$FLAG_ALLOW_MOBILE}",
     		ctx
     	});
 
@@ -3223,7 +3228,7 @@ var app = (function () {
     	const if_blocks = [];
 
     	function select_block_type(ctx, dirty) {
-    		if (/*$FLAG_PROTECTOR*/ ctx[0]) return 0;
+    		if (/*$FLAG_PROTECTOR*/ ctx[0] && !/*$FLAG_ALLOW_MOBILE*/ ctx[1]) return 0;
     		return 1;
     	}
 
@@ -3298,11 +3303,14 @@ var app = (function () {
 
     function instance$c($$self, $$props, $$invalidate) {
     	let $FLAG_PROTECTOR;
+    	let $FLAG_ALLOW_MOBILE;
     	let $PROTECTOR_CONTENT;
     	validate_store(FLAG_PROTECTOR, 'FLAG_PROTECTOR');
     	component_subscribe($$self, FLAG_PROTECTOR, $$value => $$invalidate(0, $FLAG_PROTECTOR = $$value));
+    	validate_store(FLAG_ALLOW_MOBILE, 'FLAG_ALLOW_MOBILE');
+    	component_subscribe($$self, FLAG_ALLOW_MOBILE, $$value => $$invalidate(1, $FLAG_ALLOW_MOBILE = $$value));
     	validate_store(PROTECTOR_CONTENT, 'PROTECTOR_CONTENT');
-    	component_subscribe($$self, PROTECTOR_CONTENT, $$value => $$invalidate(1, $PROTECTOR_CONTENT = $$value));
+    	component_subscribe($$self, PROTECTOR_CONTENT, $$value => $$invalidate(2, $PROTECTOR_CONTENT = $$value));
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots('Protector', slots, ['default']);
     	const writable_props = [];
@@ -3312,17 +3320,19 @@ var app = (function () {
     	});
 
     	$$self.$$set = $$props => {
-    		if ('$$scope' in $$props) $$invalidate(2, $$scope = $$props.$$scope);
+    		if ('$$scope' in $$props) $$invalidate(3, $$scope = $$props.$$scope);
     	};
 
     	$$self.$capture_state = () => ({
+    		FLAG_ALLOW_MOBILE,
     		FLAG_PROTECTOR,
     		PROTECTOR_CONTENT,
     		$FLAG_PROTECTOR,
+    		$FLAG_ALLOW_MOBILE,
     		$PROTECTOR_CONTENT
     	});
 
-    	return [$FLAG_PROTECTOR, $PROTECTOR_CONTENT, $$scope, slots];
+    	return [$FLAG_PROTECTOR, $FLAG_ALLOW_MOBILE, $PROTECTOR_CONTENT, $$scope, slots];
     }
 
     class Protector extends SvelteComponentDev {
@@ -3403,6 +3413,8 @@ var app = (function () {
         FLAG_PLAYING.set(pause);
         PLAYER_ELEMENT.set({});
         FLAG_PLAYER_IS_READY.set(false);
+        PLAYER_CURRENT_TIME.set(0);
+        PLAYER_DURATION.set("00:00");
         savePlayList();
     };
     /**
@@ -3461,6 +3473,24 @@ var app = (function () {
                 }, 500);
             }
         }
+    };
+    /**
+     * 초(second)를 "mm:ss" 형식으로 변환하는 함수
+     * @param sec
+     */
+    const getDurationNumToStr = (sec) => {
+        const M = Math.floor(sec / 60);
+        const S = Math.floor(sec - M * 60);
+        const durationM = String(M).padStart(2, "0");
+        const durationS = String(S).padStart(2, "0");
+        return `${durationM}:${durationS}`;
+    };
+    /**
+     * 초(second)를 "mm:ss" 형식으로 변환하는 함수
+     * @param sec
+     */
+    const getDurationStrToNum = (str) => {
+        return parseInt(str.split(":")[0]) * 60 + parseInt(str.split(":")[1]);
     };
 
     /* src/components/common/Slider.svelte generated by Svelte v3.48.0 */
@@ -3678,11 +3708,9 @@ var app = (function () {
     }
 
     /* src/components/PlayerApp/SongControl.svelte generated by Svelte v3.48.0 */
-
-    const { console: console_1$1 } = globals;
     const file$8 = "src/components/PlayerApp/SongControl.svelte";
 
-    // (69:4) {:else}
+    // (86:4) {:else}
     function create_else_block$4(ctx) {
     	let svg;
     	let path;
@@ -3692,11 +3720,11 @@ var app = (function () {
     			svg = svg_element("svg");
     			path = svg_element("path");
     			attr_dev(path, "d", "M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM224 191.1v128C224 337.7 209.7 352 192 352S160 337.7 160 320V191.1C160 174.3 174.3 160 191.1 160S224 174.3 224 191.1zM352 191.1v128C352 337.7 337.7 352 320 352S288 337.7 288 320V191.1C288 174.3 302.3 160 319.1 160S352 174.3 352 191.1z");
-    			add_location(path, file$8, 73, 9, 2405);
+    			add_location(path, file$8, 90, 9, 2980);
     			attr_dev(svg, "class", "icon pause svelte-1shfip3");
     			attr_dev(svg, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg, "viewBox", "0 0 512 512");
-    			add_location(svg, file$8, 69, 6, 2291);
+    			add_location(svg, file$8, 86, 6, 2866);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, svg, anchor);
@@ -3711,14 +3739,14 @@ var app = (function () {
     		block,
     		id: create_else_block$4.name,
     		type: "else",
-    		source: "(69:4) {:else}",
+    		source: "(86:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (60:4) {#if !$FLAG_PLAYING}
+    // (77:4) {#if !$FLAG_PLAYING}
     function create_if_block$5(ctx) {
     	let svg;
     	let path;
@@ -3728,11 +3756,11 @@ var app = (function () {
     			svg = svg_element("svg");
     			path = svg_element("path");
     			attr_dev(path, "d", "M512 256C512 397.4 397.4 512 256 512C114.6 512 0 397.4 0 256C0 114.6 114.6 0 256 0C397.4 0 512 114.6 512 256zM176 168V344C176 352.7 180.7 360.7 188.3 364.9C195.8 369.2 205.1 369 212.5 364.5L356.5 276.5C363.6 272.1 368 264.4 368 256C368 247.6 363.6 239.9 356.5 235.5L212.5 147.5C205.1 142.1 195.8 142.8 188.3 147.1C180.7 151.3 176 159.3 176 168V168z");
-    			add_location(path, file$8, 64, 9, 1880);
+    			add_location(path, file$8, 81, 9, 2455);
     			attr_dev(svg, "class", "icon play svelte-1shfip3");
     			attr_dev(svg, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg, "viewBox", "0 0 512 512");
-    			add_location(svg, file$8, 60, 6, 1767);
+    			add_location(svg, file$8, 77, 6, 2342);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, svg, anchor);
@@ -3747,7 +3775,7 @@ var app = (function () {
     		block,
     		id: create_if_block$5.name,
     		type: "if",
-    		source: "(60:4) {#if !$FLAG_PLAYING}",
+    		source: "(77:4) {#if !$FLAG_PLAYING}",
     		ctx
     	});
 
@@ -3769,10 +3797,14 @@ var app = (function () {
     	let div5;
     	let div3;
     	let span0;
+    	let t3;
     	let t4;
     	let slider0;
+    	let updating_value;
+    	let updating_max;
     	let t5;
     	let span1;
+    	let t6;
     	let t7;
     	let div4;
     	let svg2;
@@ -3785,7 +3817,7 @@ var app = (function () {
     	let path4;
     	let t10;
     	let slider1;
-    	let updating_value;
+    	let updating_value_1;
     	let t11;
     	let span2;
     	let t12;
@@ -3794,28 +3826,55 @@ var app = (function () {
     	let dispose;
 
     	function select_block_type(ctx, dirty) {
-    		if (!/*$FLAG_PLAYING*/ ctx[0]) return create_if_block$5;
+    		if (!/*$FLAG_PLAYING*/ ctx[3]) return create_if_block$5;
     		return create_else_block$4;
     	}
 
     	let current_block_type = select_block_type(ctx);
     	let if_block = current_block_type(ctx);
-    	slider0 = new Slider({ $$inline: true });
+
+    	function slider0_value_binding(value) {
+    		/*slider0_value_binding*/ ctx[14](value);
+    	}
+
+    	function slider0_max_binding(value) {
+    		/*slider0_max_binding*/ ctx[15](value);
+    	}
+
+    	let slider0_props = {
+    		option: {
+    			trackWidth: "100%",
+    			onMouseDown: /*func*/ ctx[12],
+    			onMouseUp: /*func_1*/ ctx[13]
+    		}
+    	};
+
+    	if (/*$PLAYER_CURRENT_TIME*/ ctx[5] !== void 0) {
+    		slider0_props.value = /*$PLAYER_CURRENT_TIME*/ ctx[5];
+    	}
+
+    	if (/*playerDurationNum*/ ctx[0] !== void 0) {
+    		slider0_props.max = /*playerDurationNum*/ ctx[0];
+    	}
+
+    	slider0 = new Slider({ props: slider0_props, $$inline: true });
+    	binding_callbacks.push(() => bind(slider0, 'value', slider0_value_binding));
+    	binding_callbacks.push(() => bind(slider0, 'max', slider0_max_binding));
 
     	function slider1_value_binding(value) {
-    		/*slider1_value_binding*/ ctx[7](value);
+    		/*slider1_value_binding*/ ctx[18](value);
     	}
 
     	let slider1_props = {
     		option: {
     			step: 1,
-    			onMouseDown: /*func*/ ctx[5],
-    			onMouseUp: /*func_1*/ ctx[6]
+    			onMouseDown: /*func_2*/ ctx[16],
+    			onMouseUp: /*func_3*/ ctx[17]
     		}
     	};
 
-    	if (/*$PLAYER_VOLUME*/ ctx[1] !== void 0) {
-    		slider1_props.value = /*$PLAYER_VOLUME*/ ctx[1];
+    	if (/*$PLAYER_VOLUME*/ ctx[4] !== void 0) {
+    		slider1_props.value = /*$PLAYER_VOLUME*/ ctx[4];
     	}
 
     	slider1 = new Slider({ props: slider1_props, $$inline: true });
@@ -3838,12 +3897,12 @@ var app = (function () {
     			div5 = element("div");
     			div3 = element("div");
     			span0 = element("span");
-    			span0.textContent = "00:00";
+    			t3 = text(/*playerCurrentTimeStr*/ ctx[1]);
     			t4 = space();
     			create_component(slider0.$$.fragment);
     			t5 = space();
     			span1 = element("span");
-    			span1.textContent = "00:00";
+    			t6 = text(/*$PLAYER_DURATION*/ ctx[8]);
     			t7 = space();
     			div4 = element("div");
     			svg2 = svg_element("svg");
@@ -3858,64 +3917,64 @@ var app = (function () {
     			create_component(slider1.$$.fragment);
     			t11 = space();
     			span2 = element("span");
-    			t12 = text(/*$PLAYER_VOLUME*/ ctx[1]);
+    			t12 = text(/*$PLAYER_VOLUME*/ ctx[4]);
     			attr_dev(div0, "class", "song-control-btn svelte-1shfip3");
     			attr_dev(div0, "id", "play-btn");
-    			add_location(div0, file$8, 58, 2, 1667);
+    			add_location(div0, file$8, 75, 2, 2242);
     			attr_dev(path0, "d", "M256 0C114.6 0 0 114.6 0 256c0 141.4 114.6 256 256 256s256-114.6 256-256C512 114.6 397.4 0 256 0zM352 328c0 13.2-10.8 24-24 24h-144C170.8 352 160 341.2 160 328v-144C160 170.8 170.8 160 184 160h144C341.2 160 352 170.8 352 184V328z");
-    			add_location(path0, file$8, 84, 7, 2962);
+    			add_location(path0, file$8, 101, 7, 3537);
     			attr_dev(svg0, "class", "icon stop svelte-1shfip3");
     			attr_dev(svg0, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg0, "viewBox", "0 0 512 512");
-    			add_location(svg0, file$8, 80, 4, 2857);
+    			add_location(svg0, file$8, 97, 4, 3432);
     			attr_dev(div1, "class", "song-control-btn svelte-1shfip3");
     			attr_dev(div1, "id", "stop-btn");
-    			add_location(div1, file$8, 79, 2, 2784);
+    			add_location(div1, file$8, 96, 2, 3359);
     			attr_dev(path1, "d", "M287.1 447.1c17.67 0 31.1-14.33 31.1-32V96.03c0-17.67-14.33-32-32-32c-17.67 0-31.1 14.33-31.1 31.1v319.9C255.1 433.6 270.3 447.1 287.1 447.1zM52.51 440.6l192-159.1c7.625-6.436 11.43-15.53 11.43-24.62c0-9.094-3.809-18.18-11.43-24.62l-192-159.1C31.88 54.28 0 68.66 0 96.03v319.9C0 443.3 31.88 457.7 52.51 440.6z");
-    			add_location(path1, file$8, 94, 7, 3428);
+    			add_location(path1, file$8, 111, 7, 4003);
     			attr_dev(svg1, "class", "icon forward svelte-1shfip3");
     			attr_dev(svg1, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg1, "viewBox", "0 0 320 512");
-    			add_location(svg1, file$8, 90, 4, 3320);
+    			add_location(svg1, file$8, 107, 4, 3895);
     			attr_dev(div2, "class", "song-control-btn svelte-1shfip3");
     			attr_dev(div2, "id", "forward-btn");
-    			add_location(div2, file$8, 89, 2, 3241);
+    			add_location(div2, file$8, 106, 2, 3816);
     			attr_dev(span0, "class", "text current-time svelte-1shfip3");
-    			add_location(span0, file$8, 101, 6, 3850);
+    			add_location(span0, file$8, 118, 6, 4425);
     			attr_dev(span1, "class", "text duration svelte-1shfip3");
-    			add_location(span1, file$8, 103, 6, 3918);
+    			add_location(span1, file$8, 148, 6, 5470);
     			attr_dev(div3, "class", "line svelte-1shfip3");
-    			add_location(div3, file$8, 100, 4, 3825);
+    			add_location(div3, file$8, 117, 4, 4400);
     			attr_dev(path2, "d", "M412.6 182c-10.28-8.334-25.41-6.867-33.75 3.402c-8.406 10.24-6.906 25.35 3.375 33.74C393.5 228.4 400 241.8 400 255.1c0 14.17-6.5 27.59-17.81 36.83c-10.28 8.396-11.78 23.5-3.375 33.74c4.719 5.806 11.62 8.802 18.56 8.802c5.344 0 10.75-1.779 15.19-5.399C435.1 311.5 448 284.6 448 255.1S435.1 200.4 412.6 182zM473.1 108.2c-10.22-8.334-25.34-6.898-33.78 3.34c-8.406 10.24-6.906 25.35 3.344 33.74C476.6 172.1 496 213.3 496 255.1s-19.44 82.1-53.31 110.7c-10.25 8.396-11.75 23.5-3.344 33.74c4.75 5.775 11.62 8.771 18.56 8.771c5.375 0 10.75-1.779 15.22-5.431C518.2 366.9 544 313 544 255.1S518.2 145 473.1 108.2zM534.4 33.4c-10.22-8.334-25.34-6.867-33.78 3.34c-8.406 10.24-6.906 25.35 3.344 33.74C559.9 116.3 592 183.9 592 255.1s-32.09 139.7-88.06 185.5c-10.25 8.396-11.75 23.5-3.344 33.74C505.3 481 512.2 484 519.2 484c5.375 0 10.75-1.779 15.22-5.431C601.5 423.6 640 342.5 640 255.1S601.5 88.34 534.4 33.4zM301.2 34.98c-11.5-5.181-25.01-3.076-34.43 5.29L131.8 160.1H48c-26.51 0-48 21.48-48 47.96v95.92c0 26.48 21.49 47.96 48 47.96h83.84l134.9 119.8C272.7 477 280.3 479.8 288 479.8c4.438 0 8.959-.9314 13.16-2.835C312.7 471.8 320 460.4 320 447.9V64.12C320 51.55 312.7 40.13 301.2 34.98z");
-    			add_location(path2, file$8, 112, 9, 4190);
+    			add_location(path2, file$8, 157, 9, 5755);
     			attr_dev(svg2, "class", "icon common volume-icon volume-high svelte-1shfip3");
     			attr_dev(svg2, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg2, "viewBox", "0 0 640 512");
-    			toggle_class(svg2, "display-block", /*$PLAYER_VOLUME*/ ctx[1] >= 65);
-    			add_location(svg2, file$8, 107, 6, 4000);
+    			toggle_class(svg2, "display-block", /*$PLAYER_VOLUME*/ ctx[4] >= 65);
+    			add_location(svg2, file$8, 152, 6, 5565);
     			attr_dev(path3, "d", "M412.6 181.9c-10.28-8.344-25.41-6.875-33.75 3.406c-8.406 10.25-6.906 25.37 3.375 33.78C393.5 228.4 400 241.8 400 256c0 14.19-6.5 27.62-17.81 36.87c-10.28 8.406-11.78 23.53-3.375 33.78c4.719 5.812 11.62 8.812 18.56 8.812c5.344 0 10.75-1.781 15.19-5.406C435.1 311.6 448 284.7 448 256S435.1 200.4 412.6 181.9zM301.2 34.84c-11.5-5.187-25.01-3.116-34.43 5.259L131.8 160H48c-26.51 0-48 21.49-48 47.1v95.1c0 26.51 21.49 47.1 48 47.1h83.84l134.9 119.9C272.7 477.2 280.3 480 288 480c4.438 0 8.959-.9313 13.16-2.837C312.7 472 320 460.6 320 448V64C320 51.41 312.7 39.1 301.2 34.84z");
-    			add_location(path3, file$8, 121, 9, 5627);
+    			add_location(path3, file$8, 166, 9, 7192);
     			attr_dev(svg3, "class", "icon common volume-icon volume-low svelte-1shfip3");
     			attr_dev(svg3, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg3, "viewBox", "0 0 448 512");
-    			toggle_class(svg3, "display-block", /*$PLAYER_VOLUME*/ ctx[1] > 0 && /*$PLAYER_VOLUME*/ ctx[1] < 65);
-    			add_location(svg3, file$8, 116, 6, 5417);
+    			toggle_class(svg3, "display-block", /*$PLAYER_VOLUME*/ ctx[4] > 0 && /*$PLAYER_VOLUME*/ ctx[4] < 65);
+    			add_location(svg3, file$8, 161, 6, 6982);
     			attr_dev(path4, "d", "M320 64v383.1c0 12.59-7.337 24.01-18.84 29.16C296.1 479.1 292.4 480 288 480c-7.688 0-15.28-2.781-21.27-8.094l-134.9-119.9H48c-26.51 0-48-21.49-48-47.1V208c0-26.51 21.49-47.1 48-47.1h83.84l134.9-119.9c9.422-8.375 22.93-10.45 34.43-5.259C312.7 39.1 320 51.41 320 64z");
-    			add_location(path4, file$8, 130, 9, 6437);
+    			add_location(path4, file$8, 175, 9, 8002);
     			attr_dev(svg4, "class", "icon common volume-icon volume-off svelte-1shfip3");
     			attr_dev(svg4, "xmlns", "http://www.w3.org/2000/svg");
     			attr_dev(svg4, "viewBox", "0 0 320 512");
-    			toggle_class(svg4, "display-block", /*$PLAYER_VOLUME*/ ctx[1] === 0);
-    			add_location(svg4, file$8, 125, 6, 6248);
+    			toggle_class(svg4, "display-block", /*$PLAYER_VOLUME*/ ctx[4] === 0);
+    			add_location(svg4, file$8, 170, 6, 7813);
     			attr_dev(span2, "class", "text svelte-1shfip3");
-    			add_location(span2, file$8, 148, 6, 7100);
+    			add_location(span2, file$8, 191, 6, 8601);
     			attr_dev(div4, "class", "line svelte-1shfip3");
-    			add_location(div4, file$8, 106, 4, 3975);
+    			add_location(div4, file$8, 151, 4, 5540);
     			attr_dev(div5, "class", "song-control-slider svelte-1shfip3");
-    			add_location(div5, file$8, 99, 2, 3787);
+    			add_location(div5, file$8, 116, 2, 4362);
     			attr_dev(div6, "id", "song-control-interface");
     			attr_dev(div6, "class", "svelte-1shfip3");
-    			add_location(div6, file$8, 57, 0, 1631);
+    			add_location(div6, file$8, 74, 0, 2206);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -3936,10 +3995,12 @@ var app = (function () {
     			append_dev(div6, div5);
     			append_dev(div5, div3);
     			append_dev(div3, span0);
+    			append_dev(span0, t3);
     			append_dev(div3, t4);
     			mount_component(slider0, div3, null);
     			append_dev(div3, t5);
     			append_dev(div3, span1);
+    			append_dev(span1, t6);
     			append_dev(div5, t7);
     			append_dev(div5, div4);
     			append_dev(div4, svg2);
@@ -3959,9 +4020,9 @@ var app = (function () {
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(div0, "click", /*clickPlayBtn*/ ctx[2], false, false, false),
-    					listen_dev(div1, "click", /*clickStopBtn*/ ctx[3], false, false, false),
-    					listen_dev(div2, "click", /*clickForwardBtn*/ ctx[4], false, false, false)
+    					listen_dev(div0, "click", /*clickPlayBtn*/ ctx[9], false, false, false),
+    					listen_dev(div1, "click", /*clickStopBtn*/ ctx[10], false, false, false),
+    					listen_dev(div2, "click", /*clickForwardBtn*/ ctx[11], false, false, false)
     				];
 
     				mounted = true;
@@ -3978,28 +4039,52 @@ var app = (function () {
     				}
     			}
 
-    			if (dirty & /*$PLAYER_VOLUME*/ 2) {
-    				toggle_class(svg2, "display-block", /*$PLAYER_VOLUME*/ ctx[1] >= 65);
+    			if (!current || dirty & /*playerCurrentTimeStr*/ 2) set_data_dev(t3, /*playerCurrentTimeStr*/ ctx[1]);
+    			const slider0_changes = {};
+
+    			if (dirty & /*$FLAG_PLAYING, $FLAG_PLAYER_IS_READY, $FLAG_PLAYER_IS_BUFFERING, $PLAYER_ELEMENT, $PLAYER_CURRENT_TIME*/ 236) slider0_changes.option = {
+    				trackWidth: "100%",
+    				onMouseDown: /*func*/ ctx[12],
+    				onMouseUp: /*func_1*/ ctx[13]
+    			};
+
+    			if (!updating_value && dirty & /*$PLAYER_CURRENT_TIME*/ 32) {
+    				updating_value = true;
+    				slider0_changes.value = /*$PLAYER_CURRENT_TIME*/ ctx[5];
+    				add_flush_callback(() => updating_value = false);
     			}
 
-    			if (dirty & /*$PLAYER_VOLUME*/ 2) {
-    				toggle_class(svg3, "display-block", /*$PLAYER_VOLUME*/ ctx[1] > 0 && /*$PLAYER_VOLUME*/ ctx[1] < 65);
+    			if (!updating_max && dirty & /*playerDurationNum*/ 1) {
+    				updating_max = true;
+    				slider0_changes.max = /*playerDurationNum*/ ctx[0];
+    				add_flush_callback(() => updating_max = false);
     			}
 
-    			if (dirty & /*$PLAYER_VOLUME*/ 2) {
-    				toggle_class(svg4, "display-block", /*$PLAYER_VOLUME*/ ctx[1] === 0);
+    			slider0.$set(slider0_changes);
+    			if (!current || dirty & /*$PLAYER_DURATION*/ 256) set_data_dev(t6, /*$PLAYER_DURATION*/ ctx[8]);
+
+    			if (dirty & /*$PLAYER_VOLUME*/ 16) {
+    				toggle_class(svg2, "display-block", /*$PLAYER_VOLUME*/ ctx[4] >= 65);
+    			}
+
+    			if (dirty & /*$PLAYER_VOLUME*/ 16) {
+    				toggle_class(svg3, "display-block", /*$PLAYER_VOLUME*/ ctx[4] > 0 && /*$PLAYER_VOLUME*/ ctx[4] < 65);
+    			}
+
+    			if (dirty & /*$PLAYER_VOLUME*/ 16) {
+    				toggle_class(svg4, "display-block", /*$PLAYER_VOLUME*/ ctx[4] === 0);
     			}
 
     			const slider1_changes = {};
 
-    			if (!updating_value && dirty & /*$PLAYER_VOLUME*/ 2) {
-    				updating_value = true;
-    				slider1_changes.value = /*$PLAYER_VOLUME*/ ctx[1];
-    				add_flush_callback(() => updating_value = false);
+    			if (!updating_value_1 && dirty & /*$PLAYER_VOLUME*/ 16) {
+    				updating_value_1 = true;
+    				slider1_changes.value = /*$PLAYER_VOLUME*/ ctx[4];
+    				add_flush_callback(() => updating_value_1 = false);
     			}
 
     			slider1.$set(slider1_changes);
-    			if (!current || dirty & /*$PLAYER_VOLUME*/ 2) set_data_dev(t12, /*$PLAYER_VOLUME*/ ctx[1]);
+    			if (!current || dirty & /*$PLAYER_VOLUME*/ 16) set_data_dev(t12, /*$PLAYER_VOLUME*/ ctx[4]);
     		},
     		i: function intro(local) {
     			if (current) return;
@@ -4035,20 +4120,40 @@ var app = (function () {
 
     function instance$a($$self, $$props, $$invalidate) {
     	let $PLAYER_ELEMENT;
+    	let $FLAG_ON_CHANGE_CURRENT_TIME;
     	let $FLAG_PLAYING;
     	let $PLAYER_VOLUME;
     	let $PLAYLIST;
+    	let $PLAYER_CURRENT_TIME;
+    	let $FLAG_PLAYER_IS_READY;
+    	let $FLAG_PLAYER_IS_BUFFERING;
+    	let $PLAYER_DURATION;
     	validate_store(PLAYER_ELEMENT, 'PLAYER_ELEMENT');
-    	component_subscribe($$self, PLAYER_ELEMENT, $$value => $$invalidate(8, $PLAYER_ELEMENT = $$value));
+    	component_subscribe($$self, PLAYER_ELEMENT, $$value => $$invalidate(2, $PLAYER_ELEMENT = $$value));
+    	validate_store(FLAG_ON_CHANGE_CURRENT_TIME, 'FLAG_ON_CHANGE_CURRENT_TIME');
+    	component_subscribe($$self, FLAG_ON_CHANGE_CURRENT_TIME, $$value => $$invalidate(19, $FLAG_ON_CHANGE_CURRENT_TIME = $$value));
     	validate_store(FLAG_PLAYING, 'FLAG_PLAYING');
-    	component_subscribe($$self, FLAG_PLAYING, $$value => $$invalidate(0, $FLAG_PLAYING = $$value));
+    	component_subscribe($$self, FLAG_PLAYING, $$value => $$invalidate(3, $FLAG_PLAYING = $$value));
     	validate_store(PLAYER_VOLUME, 'PLAYER_VOLUME');
-    	component_subscribe($$self, PLAYER_VOLUME, $$value => $$invalidate(1, $PLAYER_VOLUME = $$value));
+    	component_subscribe($$self, PLAYER_VOLUME, $$value => $$invalidate(4, $PLAYER_VOLUME = $$value));
     	validate_store(PLAYLIST, 'PLAYLIST');
-    	component_subscribe($$self, PLAYLIST, $$value => $$invalidate(9, $PLAYLIST = $$value));
+    	component_subscribe($$self, PLAYLIST, $$value => $$invalidate(20, $PLAYLIST = $$value));
+    	validate_store(PLAYER_CURRENT_TIME, 'PLAYER_CURRENT_TIME');
+    	component_subscribe($$self, PLAYER_CURRENT_TIME, $$value => $$invalidate(5, $PLAYER_CURRENT_TIME = $$value));
+    	validate_store(FLAG_PLAYER_IS_READY, 'FLAG_PLAYER_IS_READY');
+    	component_subscribe($$self, FLAG_PLAYER_IS_READY, $$value => $$invalidate(6, $FLAG_PLAYER_IS_READY = $$value));
+    	validate_store(FLAG_PLAYER_IS_BUFFERING, 'FLAG_PLAYER_IS_BUFFERING');
+    	component_subscribe($$self, FLAG_PLAYER_IS_BUFFERING, $$value => $$invalidate(7, $FLAG_PLAYER_IS_BUFFERING = $$value));
+    	validate_store(PLAYER_DURATION, 'PLAYER_DURATION');
+    	component_subscribe($$self, PLAYER_DURATION, $$value => $$invalidate(8, $PLAYER_DURATION = $$value));
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots('SongControl', slots, []);
+    	let playerDurationNum = 0;
+    	let playerCurrentTimeStr = "00:00";
 
+    	/**
+     * 재생/일시정지 버튼 클릭 이벤트 핸들러
+     */
     	const clickPlayBtn = () => {
     		const currentSong = $PLAYLIST.currentSong;
 
@@ -4104,19 +4209,57 @@ var app = (function () {
     		}
     	});
 
+    	/**
+     * 현재 재생시간 변경 시 이벤트 핸들러
+     */
+    	PLAYER_CURRENT_TIME.subscribe(value => {
+    		$$invalidate(1, playerCurrentTimeStr = getDurationNumToStr(value));
+
+    		if ($FLAG_ON_CHANGE_CURRENT_TIME) {
+    			$PLAYER_ELEMENT.seekTo(value, false);
+    		}
+    	});
+
+    	/**
+     * Duration 변경 시 이벤트 핸들러
+     */
+    	PLAYER_DURATION.subscribe(value => {
+    		$$invalidate(0, playerDurationNum = getDurationStrToNum(value));
+    	});
+
     	const writable_props = [];
 
     	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console_1$1.warn(`<SongControl> was created with unknown prop '${key}'`);
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<SongControl> was created with unknown prop '${key}'`);
     	});
 
     	const func = () => {
-    		console.log("down");
-    		FLAG_ON_CHANGE_VOLUME.set(true);
+    		if ($FLAG_PLAYING && $FLAG_PLAYER_IS_READY && !$FLAG_PLAYER_IS_BUFFERING) {
+    			FLAG_ON_CHANGE_CURRENT_TIME.set(true);
+    			$PLAYER_ELEMENT.seekTo($PLAYER_CURRENT_TIME, false);
+    		} else if (!$FLAG_PLAYING && $FLAG_PLAYER_IS_READY) $PLAYER_ELEMENT.playVideo();
     	};
 
     	const func_1 = () => {
-    		console.log("up");
+    		FLAG_ON_CHANGE_CURRENT_TIME.set(false);
+    		if ($FLAG_PLAYING && $FLAG_PLAYER_IS_READY && !$FLAG_PLAYER_IS_BUFFERING) $PLAYER_ELEMENT.seekTo($PLAYER_CURRENT_TIME); else if (!$FLAG_PLAYING && $FLAG_PLAYER_IS_READY) $PLAYER_ELEMENT.playVideo();
+    	};
+
+    	function slider0_value_binding(value) {
+    		$PLAYER_CURRENT_TIME = value;
+    		PLAYER_CURRENT_TIME.set($PLAYER_CURRENT_TIME);
+    	}
+
+    	function slider0_max_binding(value) {
+    		playerDurationNum = value;
+    		$$invalidate(0, playerDurationNum);
+    	}
+
+    	const func_2 = () => {
+    		FLAG_ON_CHANGE_VOLUME.set(true);
+    	};
+
+    	const func_3 = () => {
     		FLAG_ON_CHANGE_VOLUME.set(false);
     	};
 
@@ -4132,27 +4275,61 @@ var app = (function () {
     		PLAYER_ELEMENT,
     		PLAYER_VOLUME,
     		FLAG_ON_CHANGE_VOLUME,
+    		FLAG_ON_CHANGE_CURRENT_TIME,
+    		PLAYER_DURATION,
+    		PLAYER_CURRENT_TIME,
+    		FLAG_PLAYER_IS_READY,
+    		FLAG_PLAYER_IS_BUFFERING,
     		playSong,
     		stopSong,
     		fowardSong,
+    		getDurationNumToStr,
+    		getDurationStrToNum,
     		Slider,
+    		playerDurationNum,
+    		playerCurrentTimeStr,
     		clickPlayBtn,
     		clickStopBtn,
     		clickForwardBtn,
     		$PLAYER_ELEMENT,
+    		$FLAG_ON_CHANGE_CURRENT_TIME,
     		$FLAG_PLAYING,
     		$PLAYER_VOLUME,
-    		$PLAYLIST
+    		$PLAYLIST,
+    		$PLAYER_CURRENT_TIME,
+    		$FLAG_PLAYER_IS_READY,
+    		$FLAG_PLAYER_IS_BUFFERING,
+    		$PLAYER_DURATION
     	});
 
+    	$$self.$inject_state = $$props => {
+    		if ('playerDurationNum' in $$props) $$invalidate(0, playerDurationNum = $$props.playerDurationNum);
+    		if ('playerCurrentTimeStr' in $$props) $$invalidate(1, playerCurrentTimeStr = $$props.playerCurrentTimeStr);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
     	return [
+    		playerDurationNum,
+    		playerCurrentTimeStr,
+    		$PLAYER_ELEMENT,
     		$FLAG_PLAYING,
     		$PLAYER_VOLUME,
+    		$PLAYER_CURRENT_TIME,
+    		$FLAG_PLAYER_IS_READY,
+    		$FLAG_PLAYER_IS_BUFFERING,
+    		$PLAYER_DURATION,
     		clickPlayBtn,
     		clickStopBtn,
     		clickForwardBtn,
     		func,
     		func_1,
+    		slider0_value_binding,
+    		slider0_max_binding,
+    		func_2,
+    		func_3,
     		slider1_value_binding
     	];
     }
@@ -7677,7 +7854,7 @@ var app = (function () {
     /* src/components/PlayerApp/YTSearch.svelte generated by Svelte v3.48.0 */
     const file$1 = "src/components/PlayerApp/YTSearch.svelte";
 
-    // (101:6) {#if ytSearchID !== ""}
+    // (90:6) {#if ytSearchID !== ""}
     function create_if_block$1(ctx) {
     	let youtube;
     	let current;
@@ -7721,7 +7898,7 @@ var app = (function () {
     		block,
     		id: create_if_block$1.name,
     		type: "if",
-    		source: "(101:6) {#if ytSearchID !== \\\"\\\"}",
+    		source: "(90:6) {#if ytSearchID !== \\\"\\\"}",
     		ctx
     	});
 
@@ -7766,26 +7943,26 @@ var app = (function () {
     			div4 = element("div");
     			if (if_block) if_block.c();
     			attr_dev(div0, "class", "exit-btn svelte-1tjomm8");
-    			add_location(div0, file$1, 82, 4, 2607);
+    			add_location(div0, file$1, 71, 4, 2325);
     			attr_dev(div1, "class", "viewport-title svelte-1tjomm8");
-    			add_location(div1, file$1, 89, 6, 2755);
+    			add_location(div1, file$1, 78, 6, 2473);
     			attr_dev(input, "type", "text");
     			attr_dev(input, "placeholder", "ex) https://www.youtube.com/watch?v=-Y9VtoPvtuM");
     			attr_dev(input, "class", "svelte-1tjomm8");
-    			add_location(input, file$1, 91, 8, 2838);
+    			add_location(input, file$1, 80, 8, 2556);
     			attr_dev(button, "class", "svelte-1tjomm8");
-    			add_location(button, file$1, 96, 8, 2987);
+    			add_location(button, file$1, 85, 8, 2705);
     			attr_dev(div2, "class", "frm-input svelte-1tjomm8");
-    			add_location(div2, file$1, 90, 6, 2806);
+    			add_location(div2, file$1, 79, 6, 2524);
     			attr_dev(div3, "class", "interface link svelte-1tjomm8");
-    			add_location(div3, file$1, 88, 4, 2720);
+    			add_location(div3, file$1, 77, 4, 2438);
     			attr_dev(div4, "class", "displaynone svelte-1tjomm8");
-    			add_location(div4, file$1, 99, 4, 3057);
+    			add_location(div4, file$1, 88, 4, 2775);
     			attr_dev(div5, "class", "viewport svelte-1tjomm8");
-    			add_location(div5, file$1, 81, 2, 2580);
+    			add_location(div5, file$1, 70, 2, 2298);
     			attr_dev(div6, "id", "yt-search-popup");
     			attr_dev(div6, "class", "svelte-1tjomm8");
-    			add_location(div6, file$1, 80, 0, 2551);
+    			add_location(div6, file$1, 69, 0, 2269);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -7911,18 +8088,6 @@ var app = (function () {
     	};
 
     	/**
-     * 초(second)를 "mm:ss" 형식으로 변환하는 함수
-     * @param sec
-     */
-    	const getDurationNumToStr = sec => {
-    		const M = Math.floor(sec / 60);
-    		const S = sec - M * 60;
-    		const durationM = String(M).padStart(2, "0");
-    		const durationS = String(S).padStart(2, "0");
-    		return `${durationM}:${durationS}`;
-    	};
-
-    	/**
      * YouTube Player iframe API onReady 함수.
      * onReady 시 ytPlayer에 Player 객체를 가져옴
      * @param event
@@ -7988,11 +8153,11 @@ var app = (function () {
     		LOADING_SCREEN_SAVER_MSG,
     		PLAYLIST,
     		savePlayList,
+    		getDurationNumToStr,
     		ytURL,
     		ytSearchID,
     		ytPlayer,
     		addQueueYT,
-    		getDurationNumToStr,
     		onReadyYoutubePlayer,
     		onStateChangeYoutubePlayer,
     		$PLAYLIST
@@ -8089,19 +8254,28 @@ var app = (function () {
     }
 
     function instance$2($$self, $$props, $$invalidate) {
+    	let $PLAYLIST;
     	let $PLAYER_VOLUME;
     	let $PLAYER_ELEMENT;
     	let $FLAG_PLAYING;
+    	let $FLAG_PLAYER_IS_BUFFERING;
+    	let $FLAG_ON_CHANGE_CURRENT_TIME;
     	let $FLAG_ON_CHANGE_VOLUME;
     	let $YT_VIDEO_ID;
+    	validate_store(PLAYLIST, 'PLAYLIST');
+    	component_subscribe($$self, PLAYLIST, $$value => $$invalidate(3, $PLAYLIST = $$value));
     	validate_store(PLAYER_VOLUME, 'PLAYER_VOLUME');
-    	component_subscribe($$self, PLAYER_VOLUME, $$value => $$invalidate(3, $PLAYER_VOLUME = $$value));
+    	component_subscribe($$self, PLAYER_VOLUME, $$value => $$invalidate(4, $PLAYER_VOLUME = $$value));
     	validate_store(PLAYER_ELEMENT, 'PLAYER_ELEMENT');
-    	component_subscribe($$self, PLAYER_ELEMENT, $$value => $$invalidate(4, $PLAYER_ELEMENT = $$value));
+    	component_subscribe($$self, PLAYER_ELEMENT, $$value => $$invalidate(5, $PLAYER_ELEMENT = $$value));
     	validate_store(FLAG_PLAYING, 'FLAG_PLAYING');
-    	component_subscribe($$self, FLAG_PLAYING, $$value => $$invalidate(5, $FLAG_PLAYING = $$value));
+    	component_subscribe($$self, FLAG_PLAYING, $$value => $$invalidate(6, $FLAG_PLAYING = $$value));
+    	validate_store(FLAG_PLAYER_IS_BUFFERING, 'FLAG_PLAYER_IS_BUFFERING');
+    	component_subscribe($$self, FLAG_PLAYER_IS_BUFFERING, $$value => $$invalidate(7, $FLAG_PLAYER_IS_BUFFERING = $$value));
+    	validate_store(FLAG_ON_CHANGE_CURRENT_TIME, 'FLAG_ON_CHANGE_CURRENT_TIME');
+    	component_subscribe($$self, FLAG_ON_CHANGE_CURRENT_TIME, $$value => $$invalidate(8, $FLAG_ON_CHANGE_CURRENT_TIME = $$value));
     	validate_store(FLAG_ON_CHANGE_VOLUME, 'FLAG_ON_CHANGE_VOLUME');
-    	component_subscribe($$self, FLAG_ON_CHANGE_VOLUME, $$value => $$invalidate(6, $FLAG_ON_CHANGE_VOLUME = $$value));
+    	component_subscribe($$self, FLAG_ON_CHANGE_VOLUME, $$value => $$invalidate(9, $FLAG_ON_CHANGE_VOLUME = $$value));
     	validate_store(YT_VIDEO_ID, 'YT_VIDEO_ID');
     	component_subscribe($$self, YT_VIDEO_ID, $$value => $$invalidate(0, $YT_VIDEO_ID = $$value));
     	let { $$slots: slots = {}, $$scope } = $$props;
@@ -8111,6 +8285,10 @@ var app = (function () {
     		() => {
     			if ($FLAG_PLAYING && !$FLAG_ON_CHANGE_VOLUME) {
     				PLAYER_VOLUME.set($PLAYER_ELEMENT.getVolume());
+    			}
+
+    			if ($FLAG_PLAYING && !$FLAG_ON_CHANGE_CURRENT_TIME && !$FLAG_PLAYER_IS_BUFFERING) {
+    				PLAYER_CURRENT_TIME.set($PLAYER_ELEMENT.getCurrentTime());
     			}
     		},
     		1
@@ -8129,18 +8307,39 @@ var app = (function () {
      * @param event
      */
     	const onStateChangeYoutubePlayer = event => {
+    		var _a, _b;
+
     		if (event.detail.data === -1) {
     			// not started
     			FLAG_PLAYER_IS_READY.set(false);
+
+    			PLAYER_DURATION.set("00:00");
+    			FLAG_PLAYER_IS_BUFFERING.set(false);
     		} else if (event.detail.data === 0) {
     			// end video
     			fowardSong($FLAG_PLAYING);
+
+    			FLAG_PLAYER_IS_READY.set(false);
+    			PLAYER_DURATION.set("00:00");
+    			FLAG_PLAYER_IS_BUFFERING.set(false);
     		} else if (event.detail.data === 1) {
     			// is playing
     			FLAG_PLAYING.set(true);
+
+    			FLAG_PLAYER_IS_READY.set(true);
+    			FLAG_PLAYER_IS_BUFFERING.set(false);
+
+    			const duration = (_a = $PLAYLIST.currentSong) === null || _a === void 0
+    			? void 0
+    			: _a.duration;
+
+    			if (duration) PLAYER_DURATION.set(duration);
     		} else if (event.detail.data === 2) {
     			// paused
     			FLAG_PLAYING.set(false);
+    		} else if (event.detail.data === 3) {
+    			// buffering
+    			FLAG_PLAYER_IS_BUFFERING.set(true);
     		} else if (event.detail.data === 5) {
     			// video on ready
     			if ($FLAG_PLAYING) {
@@ -8148,8 +8347,15 @@ var app = (function () {
     			}
 
     			$PLAYER_ELEMENT.setVolume($PLAYER_VOLUME);
+
+    			const duration = (_b = $PLAYLIST.currentSong) === null || _b === void 0
+    			? void 0
+    			: _b.duration;
+
+    			if (duration) PLAYER_DURATION.set(duration);
     			FLAG_PLAYER_IS_READY.set(true);
     			FLAG_NEXT_SONG_LOADING.set(false);
+    			FLAG_PLAYER_IS_BUFFERING.set(false);
     		}
     	};
 
@@ -8164,16 +8370,24 @@ var app = (function () {
     		FLAG_PLAYER_IS_READY,
     		FLAG_PLAYING,
     		FLAG_NEXT_SONG_LOADING,
+    		FLAG_ON_CHANGE_CURRENT_TIME,
+    		FLAG_ON_CHANGE_VOLUME,
     		YT_VIDEO_ID,
     		PLAYER_ELEMENT,
     		PLAYER_VOLUME,
-    		FLAG_ON_CHANGE_VOLUME,
+    		PLAYER_DURATION,
+    		PLAYER_CURRENT_TIME,
+    		PLAYLIST,
+    		FLAG_PLAYER_IS_BUFFERING,
     		fowardSong,
     		onReadyYoutubePlayer,
     		onStateChangeYoutubePlayer,
+    		$PLAYLIST,
     		$PLAYER_VOLUME,
     		$PLAYER_ELEMENT,
     		$FLAG_PLAYING,
+    		$FLAG_PLAYER_IS_BUFFERING,
+    		$FLAG_ON_CHANGE_CURRENT_TIME,
     		$FLAG_ON_CHANGE_VOLUME,
     		$YT_VIDEO_ID
     	});

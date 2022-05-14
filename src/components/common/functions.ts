@@ -9,6 +9,8 @@ import {
   PLAYER_ELEMENT,
   PLAYLIST,
   PLAYER_VOLUME,
+  PLAYER_CURRENT_TIME,
+  PLAYER_DURATION,
 } from "./stores";
 import { errorToast } from "./toast";
 
@@ -39,6 +41,8 @@ export const stopSong = (pause: boolean = false) => {
   FLAG_PLAYING.set(pause);
   PLAYER_ELEMENT.set({});
   FLAG_PLAYER_IS_READY.set(false);
+  PLAYER_CURRENT_TIME.set(0);
+  PLAYER_DURATION.set("00:00");
   savePlayList();
 };
 
@@ -101,4 +105,26 @@ export const fowardSong = (pause: boolean) => {
       }, 500);
     }
   }
+};
+
+/**
+ * 초(second)를 "mm:ss" 형식으로 변환하는 함수
+ * @param sec
+ */
+export const getDurationNumToStr = (sec: number) => {
+  const M = Math.floor(sec / 60);
+  const S = Math.floor(sec - M * 60);
+
+  const durationM = String(M).padStart(2, "0");
+  const durationS = String(S).padStart(2, "0");
+
+  return `${durationM}:${durationS}`;
+};
+
+/**
+ * 초(second)를 "mm:ss" 형식으로 변환하는 함수
+ * @param sec
+ */
+export const getDurationStrToNum = (str: string) => {
+  return parseInt(str.split(":")[0]) * 60 + parseInt(str.split(":")[1]);
 };

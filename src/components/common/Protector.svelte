@@ -1,8 +1,12 @@
 <script lang="ts">
-  import { FLAG_PROTECTOR, PROTECTOR_CONTENT } from "./stores";
+  import {
+    FLAG_ALLOW_MOBILE,
+    FLAG_PROTECTOR,
+    PROTECTOR_CONTENT,
+  } from "./stores";
 </script>
 
-{#if $FLAG_PROTECTOR}
+{#if $FLAG_PROTECTOR && !$FLAG_ALLOW_MOBILE}
   <div class="protector">
     {@html $PROTECTOR_CONTENT}
     <div class="block">STREAM-MUSIC</div>

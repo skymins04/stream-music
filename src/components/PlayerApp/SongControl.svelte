@@ -6,10 +6,24 @@
     PLAYER_ELEMENT,
     PLAYER_VOLUME,
     FLAG_ON_CHANGE_VOLUME,
+    FLAG_ON_CHANGE_CURRENT_TIME,
+    PLAYER_DURATION,
+    PLAYER_CURRENT_TIME,
+    FLAG_PLAYER_IS_READY,
+    FLAG_PLAYER_IS_BUFFERING,
   } from "../common/stores";
-  import { playSong, stopSong, fowardSong } from "../common/functions";
+  import {
+    playSong,
+    stopSong,
+    fowardSong,
+    getDurationNumToStr,
+    getDurationStrToNum,
+  } from "../common/functions";
 
   import Slider from "../common/Slider.svelte";
+
+  let playerDurationNum = 0;
+  let playerCurrentTimeStr = "00:00";
 
   /**
    * 재생/일시정지 버튼 클릭 이벤트 핸들러
@@ -65,6 +79,23 @@
       ($PLAYER_ELEMENT as any).setVolume(value);
     }
   });
+
+  /**
+   * 현재 재생시간 변경 시 이벤트 핸들러
+   */
+  PLAYER_CURRENT_TIME.subscribe((value) => {
+    playerCurrentTimeStr = getDurationNumToStr(value);
+    if ($FLAG_ON_CHANGE_CURRENT_TIME) {
+      ($PLAYER_ELEMENT as any).seekTo(value, false);
+    }
+  });
+
+  /**
+   * Duration 변경 시 이벤트 핸들러
+   */
+  PLAYER_DURATION.subscribe((value) => {
+    playerDurationNum = getDurationStrToNum(value);
+  });
 </script>
 
 <div id="song-control-interface">
@@ -111,9 +142,37 @@
   </div>
   <div class="song-control-slider">
     <div class="line">
-      <span class="text current-time">00:00</span>
-      <Slider />
-      <span class="text duration">00:00</span>
+      <span class="text current-time">{playerCurrentTimeStr}</span>
+      <Slider
+        bind:value={$PLAYER_CURRENT_TIME}
+        bind:max={playerDurationNum}
+        option={{
+          trackWidth: "100%",
+          onMouseDown: () => {
+            if (
+              $FLAG_PLAYING &&
+              $FLAG_PLAYER_IS_READY &&
+              !$FLAG_PLAYER_IS_BUFFERING
+            ) {
+              FLAG_ON_CHANGE_CURRENT_TIME.set(true);
+              $PLAYER_ELEMENT.seekTo($PLAYER_CURRENT_TIME, false);
+            } else if (!$FLAG_PLAYING && $FLAG_PLAYER_IS_READY)
+              $PLAYER_ELEMENT.playVideo();
+          },
+          onMouseUp: () => {
+            FLAG_ON_CHANGE_CURRENT_TIME.set(false);
+            if (
+              $FLAG_PLAYING &&
+              $FLAG_PLAYER_IS_READY &&
+              !$FLAG_PLAYER_IS_BUFFERING
+            )
+              $PLAYER_ELEMENT.seekTo($PLAYER_CURRENT_TIME);
+            else if (!$FLAG_PLAYING && $FLAG_PLAYER_IS_READY)
+              $PLAYER_ELEMENT.playVideo();
+          },
+        }}
+      />
+      <span class="text duration">{$PLAYER_DURATION}</span>
     </div>
 
     <div class="line">
@@ -149,11 +208,9 @@
         option={{
           step: 1,
           onMouseDown: () => {
-            console.log("down");
             FLAG_ON_CHANGE_VOLUME.set(true);
           },
           onMouseUp: () => {
-            console.log("up");
             FLAG_ON_CHANGE_VOLUME.set(false);
           },
         }}
