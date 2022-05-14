@@ -21,13 +21,19 @@
    * 플레이어 정보를 업데이트 하는 서브루틴
    */
   setInterval(() => {
-    if ($FLAG_PLAYING && !$FLAG_ON_CHANGE_VOLUME) {
+    if (
+      $FLAG_PLAYING &&
+      !$FLAG_ON_CHANGE_VOLUME &&
+      !$FLAG_PLAYER_IS_BUFFERING &&
+      ($PLAYER_ELEMENT as any).getVolume
+    ) {
       PLAYER_VOLUME.set(($PLAYER_ELEMENT as any).getVolume());
     }
     if (
       $FLAG_PLAYING &&
       !$FLAG_ON_CHANGE_CURRENT_TIME &&
-      !$FLAG_PLAYER_IS_BUFFERING
+      !$FLAG_PLAYER_IS_BUFFERING &&
+      ($PLAYER_ELEMENT as any).getCurrentTime
     ) {
       PLAYER_CURRENT_TIME.set(($PLAYER_ELEMENT as any).getCurrentTime());
     }
@@ -51,6 +57,7 @@
       FLAG_PLAYER_IS_READY.set(false);
       PLAYER_DURATION.set("00:00");
       FLAG_PLAYER_IS_BUFFERING.set(false);
+      ($PLAYER_ELEMENT as any).setVolume($PLAYER_VOLUME);
     } else if (event.detail.data === 0) {
       // end video
       fowardSong($FLAG_PLAYING);
@@ -62,11 +69,13 @@
       FLAG_PLAYING.set(true);
       FLAG_PLAYER_IS_READY.set(true);
       FLAG_PLAYER_IS_BUFFERING.set(false);
+      ($PLAYER_ELEMENT as any).setVolume($PLAYER_VOLUME);
       const duration = $PLAYLIST.currentSong?.duration;
       if (duration) PLAYER_DURATION.set(duration);
     } else if (event.detail.data === 2) {
       // paused
       FLAG_PLAYING.set(false);
+      ($PLAYER_ELEMENT as any).setVolume($PLAYER_VOLUME);
     } else if (event.detail.data === 3) {
       // buffering
       FLAG_PLAYER_IS_BUFFERING.set(true);

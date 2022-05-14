@@ -8283,11 +8283,11 @@ var app = (function () {
 
     	setInterval(
     		() => {
-    			if ($FLAG_PLAYING && !$FLAG_ON_CHANGE_VOLUME) {
+    			if ($FLAG_PLAYING && !$FLAG_ON_CHANGE_VOLUME && !$FLAG_PLAYER_IS_BUFFERING && $PLAYER_ELEMENT.getVolume) {
     				PLAYER_VOLUME.set($PLAYER_ELEMENT.getVolume());
     			}
 
-    			if ($FLAG_PLAYING && !$FLAG_ON_CHANGE_CURRENT_TIME && !$FLAG_PLAYER_IS_BUFFERING) {
+    			if ($FLAG_PLAYING && !$FLAG_ON_CHANGE_CURRENT_TIME && !$FLAG_PLAYER_IS_BUFFERING && $PLAYER_ELEMENT.getCurrentTime) {
     				PLAYER_CURRENT_TIME.set($PLAYER_ELEMENT.getCurrentTime());
     			}
     		},
@@ -8315,6 +8315,7 @@ var app = (function () {
 
     			PLAYER_DURATION.set("00:00");
     			FLAG_PLAYER_IS_BUFFERING.set(false);
+    			$PLAYER_ELEMENT.setVolume($PLAYER_VOLUME);
     		} else if (event.detail.data === 0) {
     			// end video
     			fowardSong($FLAG_PLAYING);
@@ -8328,6 +8329,7 @@ var app = (function () {
 
     			FLAG_PLAYER_IS_READY.set(true);
     			FLAG_PLAYER_IS_BUFFERING.set(false);
+    			$PLAYER_ELEMENT.setVolume($PLAYER_VOLUME);
 
     			const duration = (_a = $PLAYLIST.currentSong) === null || _a === void 0
     			? void 0
@@ -8337,6 +8339,8 @@ var app = (function () {
     		} else if (event.detail.data === 2) {
     			// paused
     			FLAG_PLAYING.set(false);
+
+    			$PLAYER_ELEMENT.setVolume($PLAYER_VOLUME);
     		} else if (event.detail.data === 3) {
     			// buffering
     			FLAG_PLAYER_IS_BUFFERING.set(true);
