@@ -1,5 +1,6 @@
 <script lang="ts">
   import YouTube from "svelte-youtube";
+  import { get } from "svelte/store";
 
   import {
     FLAG_PLAYER_IS_READY,
@@ -7,8 +8,16 @@
     FLAG_NEXT_SONG_LOADING,
     YT_VIDEO_ID,
     PLAYER_ELEMENT,
+    PLAYER_VOLUME,
+    FLAG_ON_CHANGE_VOLUME,
   } from "../common/stores";
   import { fowardSong } from "../common/functions";
+
+  setInterval(() => {
+    if ($FLAG_PLAYING && !$FLAG_ON_CHANGE_VOLUME) {
+      PLAYER_VOLUME.set(($PLAYER_ELEMENT as any).getVolume());
+    }
+  }, 1);
 
   /**
    * YouTube iframe의 Event handler를 얻는 함수
@@ -37,7 +46,10 @@
       FLAG_PLAYING.set(false);
     } else if (event.detail.data === 5) {
       // video on ready
-      if ($FLAG_PLAYING) ($PLAYER_ELEMENT as any).playVideo();
+      if ($FLAG_PLAYING) {
+        ($PLAYER_ELEMENT as any).playVideo();
+      }
+      ($PLAYER_ELEMENT as any).setVolume($PLAYER_VOLUME);
       FLAG_PLAYER_IS_READY.set(true);
       FLAG_NEXT_SONG_LOADING.set(false);
     }

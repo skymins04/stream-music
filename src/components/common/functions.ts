@@ -8,6 +8,7 @@ import {
   LOCAL_SONG_PATH,
   PLAYER_ELEMENT,
   PLAYLIST,
+  PLAYER_VOLUME,
 } from "./stores";
 import { errorToast } from "./toast";
 
@@ -74,6 +75,7 @@ export const playSong = (pause: boolean) => {
       case "youtube":
         const interval = setInterval(() => {
           if (get(FLAG_PLAYER_IS_READY)) {
+            (get(PLAYER_ELEMENT) as any).setVolume(get(PLAYER_VOLUME));
             (get(PLAYER_ELEMENT) as any).playVideo();
             clearInterval(interval);
           }

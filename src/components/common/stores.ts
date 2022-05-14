@@ -24,12 +24,16 @@ export const FLAG_HISTORY_LIST = writable(false); // History List 토글 플래�
 export const FLAG_NETWORK_STATUS = writable(false); // 네트워크 연결 상태 플래그
 export const FLAG_CLIENT_STATUS = writable(false); // STREAM-MUSIC 클라이언트 연결 상태 플래그
 export const FLAG_PROTECTOR = writable(false); // 서비스 보호화면 활성화 플래그
+export const FLAG_ON_CHANGE_VOLUME = writable(false); // 볼륨 조절 중인 여부 플래그
 
 export const LOADING_SCREEN_SAVER_MSG = writable(""); // 로딩 스크린 세이버 메세지
 export const YT_VIDEO_ID = writable(""); // YouTube iframe Video ID
 export const LOCAL_SONG_PATH = writable(""); // 로컬 음원 파일 경로
 export const PLAYER_ELEMENT = writable({}); // 플레이어 조작 객체
 export const PROTECTOR_CONTENT = writable(""); // 서비스 보호화면 활성화 플래그
+export const PLAYER_VOLUME = writable(0); // 플레이어 볼륨 값
+export const PLAYER_CURRENT_TIME = writable(0); // 플레이어 현재 재생 시간
+export const PLAYER_DURATION = writable(0); // 플레이어 총 재생 길이
 
 export const PLAYLIST = writable({
   // 현재재생곡, 재생대기열, 히스로리 객체
