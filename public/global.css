@@ -152,6 +152,13 @@ button:focus {
   fill: #555;
 }
 
+.icon.youtube {
+  fill: #ff0000;
+}
+.icon.common {
+  fill: #555;
+}
+
 @media (max-width: 800px) {
   .connection-indicators {
     top: 40px !important;

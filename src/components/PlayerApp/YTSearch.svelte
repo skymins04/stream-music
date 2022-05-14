@@ -8,7 +8,7 @@
     LOADING_SCREEN_SAVER_MSG,
     PLAYLIST,
   } from "../common/stores";
-  import { savePlayList } from "../common/functions";
+  import { savePlayList, getDurationNumToStr } from "../common/functions";
 
   let ytURL: string;
   let ytSearchID: string = "";
@@ -42,20 +42,6 @@
       ytPlayer.mute();
       ytPlayer.playVideo();
     }, 1000);
-  };
-
-  /**
-   * 초(second)를 "mm:ss" 형식으로 변환하는 함수
-   * @param sec
-   */
-  const getDurationNumToStr = (sec: number) => {
-    const M = Math.floor(sec / 60);
-    const S = sec - M * 60;
-
-    const durationM = String(M).padStart(2, "0");
-    const durationS = String(S).padStart(2, "0");
-
-    return `${durationM}:${durationS}`;
   };
 
   /**

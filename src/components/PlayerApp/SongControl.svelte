@@ -1,7 +1,29 @@
 <script lang="ts">
   import { errorToast } from "../common/toast";
-  import { FLAG_PLAYING, PLAYLIST, PLAYER_ELEMENT } from "../common/stores";
-  import { playSong, stopSong, fowardSong } from "../common/functions";
+  import {
+    FLAG_PLAYING,
+    PLAYLIST,
+    PLAYER_ELEMENT,
+    PLAYER_VOLUME,
+    FLAG_ON_CHANGE_VOLUME,
+    FLAG_ON_CHANGE_CURRENT_TIME,
+    PLAYER_DURATION,
+    PLAYER_CURRENT_TIME,
+    FLAG_PLAYER_IS_READY,
+    FLAG_PLAYER_IS_BUFFERING,
+  } from "../common/stores";
+  import {
+    playSong,
+    stopSong,
+    fowardSong,
+    getDurationNumToStr,
+    getDurationStrToNum,
+  } from "../common/functions";
+
+  import Slider from "../common/Slider.svelte";
+
+  let playerDurationNum = 0;
+  let playerCurrentTimeStr = "00:00";
 
   /**
    * 재생/일시정지 버튼 클릭 이벤트 핸들러
@@ -25,8 +47,10 @@
     // 현재 재생중인 곡이 있는 경우에서 재생 토글
     else {
       if (currentSong?.type === "youtube") {
-        if ($FLAG_PLAYING) ($PLAYER_ELEMENT as any).playVideo();
-        else ($PLAYER_ELEMENT as any).pauseVideo();
+        if ($FLAG_PLAYING) {
+          ($PLAYER_ELEMENT as any).setVolume($PLAYER_VOLUME);
+          ($PLAYER_ELEMENT as any).playVideo();
+        } else ($PLAYER_ELEMENT as any).pauseVideo();
       } else if (currentSong?.type === "local") {
       }
     }
@@ -45,6 +69,33 @@
   const clickForwardBtn = () => {
     fowardSong($FLAG_PLAYING);
   };
+
+  /**
+   * 볼륨 값 변경 시 이벤트 핸들러
+   */
+  PLAYER_VOLUME.subscribe((value) => {
+    localStorage.setItem("playerVolume", String(value));
+    if ($FLAG_PLAYING) {
+      ($PLAYER_ELEMENT as any).setVolume(value);
+    }
+  });
+
+  /**
+   * 현재 재생시간 변경 시 이벤트 핸들러
+   */
+  PLAYER_CURRENT_TIME.subscribe((value) => {
+    playerCurrentTimeStr = getDurationNumToStr(value);
+    if ($FLAG_ON_CHANGE_CURRENT_TIME) {
+      ($PLAYER_ELEMENT as any).seekTo(value, false);
+    }
+  });
+
+  /**
+   * Duration 변경 시 이벤트 핸들러
+   */
+  PLAYER_DURATION.subscribe((value) => {
+    playerDurationNum = getDurationStrToNum(value);
+  });
 </script>
 
 <div id="song-control-interface">
@@ -89,10 +140,94 @@
       /></svg
     >
   </div>
+  <div class="song-control-slider">
+    <div class="line">
+      <span class="text current-time">{playerCurrentTimeStr}</span>
+      <Slider
+        bind:value={$PLAYER_CURRENT_TIME}
+        bind:max={playerDurationNum}
+        option={{
+          trackWidth: "100%",
+          onMouseDown: () => {
+            if (
+              $FLAG_PLAYING &&
+              $FLAG_PLAYER_IS_READY &&
+              !$FLAG_PLAYER_IS_BUFFERING
+            ) {
+              FLAG_ON_CHANGE_CURRENT_TIME.set(true);
+              $PLAYER_ELEMENT.seekTo($PLAYER_CURRENT_TIME, false);
+            } else if (!$FLAG_PLAYING && $FLAG_PLAYER_IS_READY)
+              $PLAYER_ELEMENT.playVideo();
+          },
+          onMouseUp: () => {
+            FLAG_ON_CHANGE_CURRENT_TIME.set(false);
+            if (
+              $FLAG_PLAYING &&
+              $FLAG_PLAYER_IS_READY &&
+              !$FLAG_PLAYER_IS_BUFFERING
+            )
+              $PLAYER_ELEMENT.seekTo($PLAYER_CURRENT_TIME);
+            else if (!$FLAG_PLAYING && $FLAG_PLAYER_IS_READY)
+              $PLAYER_ELEMENT.playVideo();
+          },
+        }}
+      />
+      <span class="text duration">{$PLAYER_DURATION}</span>
+    </div>
+
+    <div class="line">
+      <svg
+        class:display-block={$PLAYER_VOLUME >= 65}
+        class="icon common volume-icon volume-high"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 640 512"
+        ><path
+          d="M412.6 182c-10.28-8.334-25.41-6.867-33.75 3.402c-8.406 10.24-6.906 25.35 3.375 33.74C393.5 228.4 400 241.8 400 255.1c0 14.17-6.5 27.59-17.81 36.83c-10.28 8.396-11.78 23.5-3.375 33.74c4.719 5.806 11.62 8.802 18.56 8.802c5.344 0 10.75-1.779 15.19-5.399C435.1 311.5 448 284.6 448 255.1S435.1 200.4 412.6 182zM473.1 108.2c-10.22-8.334-25.34-6.898-33.78 3.34c-8.406 10.24-6.906 25.35 3.344 33.74C476.6 172.1 496 213.3 496 255.1s-19.44 82.1-53.31 110.7c-10.25 8.396-11.75 23.5-3.344 33.74c4.75 5.775 11.62 8.771 18.56 8.771c5.375 0 10.75-1.779 15.22-5.431C518.2 366.9 544 313 544 255.1S518.2 145 473.1 108.2zM534.4 33.4c-10.22-8.334-25.34-6.867-33.78 3.34c-8.406 10.24-6.906 25.35 3.344 33.74C559.9 116.3 592 183.9 592 255.1s-32.09 139.7-88.06 185.5c-10.25 8.396-11.75 23.5-3.344 33.74C505.3 481 512.2 484 519.2 484c5.375 0 10.75-1.779 15.22-5.431C601.5 423.6 640 342.5 640 255.1S601.5 88.34 534.4 33.4zM301.2 34.98c-11.5-5.181-25.01-3.076-34.43 5.29L131.8 160.1H48c-26.51 0-48 21.48-48 47.96v95.92c0 26.48 21.49 47.96 48 47.96h83.84l134.9 119.8C272.7 477 280.3 479.8 288 479.8c4.438 0 8.959-.9314 13.16-2.835C312.7 471.8 320 460.4 320 447.9V64.12C320 51.55 312.7 40.13 301.2 34.98z"
+        /></svg
+      >
+      <svg
+        class:display-block={$PLAYER_VOLUME > 0 && $PLAYER_VOLUME < 65}
+        class="icon common volume-icon volume-low"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 448 512"
+        ><path
+          d="M412.6 181.9c-10.28-8.344-25.41-6.875-33.75 3.406c-8.406 10.25-6.906 25.37 3.375 33.78C393.5 228.4 400 241.8 400 256c0 14.19-6.5 27.62-17.81 36.87c-10.28 8.406-11.78 23.53-3.375 33.78c4.719 5.812 11.62 8.812 18.56 8.812c5.344 0 10.75-1.781 15.19-5.406C435.1 311.6 448 284.7 448 256S435.1 200.4 412.6 181.9zM301.2 34.84c-11.5-5.187-25.01-3.116-34.43 5.259L131.8 160H48c-26.51 0-48 21.49-48 47.1v95.1c0 26.51 21.49 47.1 48 47.1h83.84l134.9 119.9C272.7 477.2 280.3 480 288 480c4.438 0 8.959-.9313 13.16-2.837C312.7 472 320 460.6 320 448V64C320 51.41 312.7 39.1 301.2 34.84z"
+        /></svg
+      >
+      <svg
+        class:display-block={$PLAYER_VOLUME === 0}
+        class="icon common volume-icon volume-off"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 320 512"
+        ><path
+          d="M320 64v383.1c0 12.59-7.337 24.01-18.84 29.16C296.1 479.1 292.4 480 288 480c-7.688 0-15.28-2.781-21.27-8.094l-134.9-119.9H48c-26.51 0-48-21.49-48-47.1V208c0-26.51 21.49-47.1 48-47.1h83.84l134.9-119.9c9.422-8.375 22.93-10.45 34.43-5.259C312.7 39.1 320 51.41 320 64z"
+        /></svg
+      >
+      <Slider
+        bind:value={$PLAYER_VOLUME}
+        option={{
+          step: 1,
+          onMouseDown: () => {
+            FLAG_ON_CHANGE_VOLUME.set(true);
+          },
+          onMouseUp: () => {
+            FLAG_ON_CHANGE_VOLUME.set(false);
+          },
+        }}
+      />
+      <span class="text">{$PLAYER_VOLUME}</span>
+    </div>
+  </div>
 </div>
 
 <style lang="scss">
+  .display-block {
+    display: block !important;
+  }
+
   #song-control-interface {
+    position: relative;
+    width: 100%;
     height: 100%;
     display: flex;
     justify-content: flex-start;
@@ -123,6 +258,59 @@
     #forward-btn {
       width: 35px;
       height: 35px;
+    }
+
+    .song-control-slider {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 5px;
+      position: relative;
+      width: 100%;
+      padding-left: 20px;
+      padding-right: 20px;
+
+      .line {
+        position: relative;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+
+        .text {
+          position: relative;
+          top: -0.1em;
+          font-size: 0.8em;
+        }
+
+        .icon {
+          position: relative;
+          display: none;
+          min-width: 30px;
+          padding-right: auto;
+        }
+
+        .volume-high {
+          left: 4px;
+          width: 20px;
+          height: 15px;
+        }
+        .volume-low {
+          left: 2px;
+          width: 15px;
+          height: 15px;
+        }
+        .volume-off {
+          width: 15px;
+          height: 15px;
+        }
+      }
+      .line:last-child {
+        width: 100%;
+        max-width: 10em;
+      }
     }
   }
 </style>
