@@ -37,7 +37,9 @@
   "dependencies": {
     "@bulatdashiev/svelte-slider": "^1.0.3",
     "axios": "^0.27.2",
+    "music-metadata": "^7.12.3",
     "node-sass": "^7.0.1",
+    "svelte-media-query": "^1.1.2",
     "svelte-toasts": "^1.1.2",
     "svelte-youtube": "^0.0.2"
   }

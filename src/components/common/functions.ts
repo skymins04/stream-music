@@ -4,15 +4,15 @@ import {
   FLAG_PLAYER_IS_READY,
   FLAG_NEXT_SONG_LOADING,
   FLAG_NETWORK_STATUS,
+  FLAG_PLAYER_IS_RUNNING,
   YT_VIDEO_ID,
   LOCAL_SONG_PATH,
   PLAYER_ELEMENT,
   PLAYLIST,
-  PLAYER_VOLUME,
   PLAYER_CURRENT_TIME,
   PLAYER_DURATION,
 } from "./stores";
-import { errorToast } from "./toast";
+import { errorToast, infoToast } from "./toast";
 
 /**
  * PLAYLIST 객체를 trigging Subscriber하고 LocalStorage에 저장하는 함수
@@ -43,6 +43,7 @@ export const stopSong = (pause: boolean = false) => {
   FLAG_PLAYER_IS_READY.set(false);
   PLAYER_CURRENT_TIME.set(0);
   PLAYER_DURATION.set("00:00");
+  FLAG_PLAYER_IS_RUNNING.set(false);
   savePlayList();
 };
 
@@ -51,6 +52,7 @@ export const stopSong = (pause: boolean = false) => {
  * @param pause 재생상태 여부, true: 재생, false: 일시정지
  */
 export const playSong = (pause: boolean) => {
+  FLAG_PLAYER_IS_RUNNING.set(false);
   FLAG_PLAYING.set(pause);
   const currentSong = get(PLAYLIST).currentSong;
 
@@ -73,13 +75,18 @@ export const playSong = (pause: boolean) => {
     get(PLAYLIST).currentSong = get(PLAYLIST).queue[0];
     get(PLAYLIST).queue.shift();
     savePlayList();
+
+    infoToast(
+      `Now Playing: ${get(PLAYLIST).currentSong?.title} - ${
+        get(PLAYLIST).currentSong?.artist
+      }`
+    );
   } else {
     // 현재 재생중인 노래가 있는 경우
     switch (currentSong.type) {
       case "youtube":
         const interval = setInterval(() => {
           if (get(FLAG_PLAYER_IS_READY)) {
-            (get(PLAYER_ELEMENT) as any).setVolume(get(PLAYER_VOLUME));
             (get(PLAYER_ELEMENT) as any).playVideo();
             clearInterval(interval);
           }

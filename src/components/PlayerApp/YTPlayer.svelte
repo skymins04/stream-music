@@ -14,6 +14,7 @@
     PLAYER_CURRENT_TIME,
     PLAYLIST,
     FLAG_PLAYER_IS_BUFFERING,
+    FLAG_PLAYER_IS_RUNNING,
   } from "../common/stores";
   import { fowardSong } from "../common/functions";
 
@@ -25,14 +26,19 @@
       $FLAG_PLAYING &&
       !$FLAG_ON_CHANGE_VOLUME &&
       !$FLAG_PLAYER_IS_BUFFERING &&
+      $FLAG_PLAYER_IS_RUNNING &&
       ($PLAYER_ELEMENT as any).getVolume
     ) {
-      PLAYER_VOLUME.set(($PLAYER_ELEMENT as any).getVolume());
+      const volume = ($PLAYER_ELEMENT as any).getVolume();
+      if (typeof volume === "number") {
+        PLAYER_VOLUME.set(volume);
+      }
     }
     if (
       $FLAG_PLAYING &&
       !$FLAG_ON_CHANGE_CURRENT_TIME &&
       !$FLAG_PLAYER_IS_BUFFERING &&
+      $FLAG_PLAYER_IS_RUNNING &&
       ($PLAYER_ELEMENT as any).getCurrentTime
     ) {
       PLAYER_CURRENT_TIME.set(($PLAYER_ELEMENT as any).getCurrentTime());
@@ -54,28 +60,29 @@
   const onStateChangeYoutubePlayer = (event) => {
     if (event.detail.data === -1) {
       // not started
-      FLAG_PLAYER_IS_READY.set(false);
       PLAYER_DURATION.set("00:00");
       FLAG_PLAYER_IS_BUFFERING.set(false);
-      ($PLAYER_ELEMENT as any).setVolume($PLAYER_VOLUME);
     } else if (event.detail.data === 0) {
       // end video
       fowardSong($FLAG_PLAYING);
       FLAG_PLAYER_IS_READY.set(false);
       PLAYER_DURATION.set("00:00");
       FLAG_PLAYER_IS_BUFFERING.set(false);
+      FLAG_PLAYER_IS_RUNNING.set(false);
     } else if (event.detail.data === 1) {
       // is playing
+      ($PLAYER_ELEMENT as any).setVolume($PLAYER_VOLUME);
       FLAG_PLAYING.set(true);
       FLAG_PLAYER_IS_READY.set(true);
       FLAG_PLAYER_IS_BUFFERING.set(false);
-      ($PLAYER_ELEMENT as any).setVolume($PLAYER_VOLUME);
       const duration = $PLAYLIST.currentSong?.duration;
       if (duration) PLAYER_DURATION.set(duration);
+      setTimeout(() => {
+        FLAG_PLAYER_IS_RUNNING.set(true);
+      }, 2000);
     } else if (event.detail.data === 2) {
       // paused
       FLAG_PLAYING.set(false);
-      ($PLAYER_ELEMENT as any).setVolume($PLAYER_VOLUME);
     } else if (event.detail.data === 3) {
       // buffering
       FLAG_PLAYER_IS_BUFFERING.set(true);
@@ -84,12 +91,12 @@
       if ($FLAG_PLAYING) {
         ($PLAYER_ELEMENT as any).playVideo();
       }
-      ($PLAYER_ELEMENT as any).setVolume($PLAYER_VOLUME);
       const duration = $PLAYLIST.currentSong?.duration;
       if (duration) PLAYER_DURATION.set(duration);
       FLAG_PLAYER_IS_READY.set(true);
       FLAG_NEXT_SONG_LOADING.set(false);
       FLAG_PLAYER_IS_BUFFERING.set(false);
+      FLAG_PLAYER_IS_RUNNING.set(false);
     }
   };
 </script>

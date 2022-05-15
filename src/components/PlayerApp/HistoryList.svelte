@@ -283,7 +283,7 @@
           color: #555;
           background-color: white;
           border: 1px solid #ccc;
-          border-radius: 3px;
+          border-radius: 6px;
           white-space: nowrap;
           transition: 0.2s;
           opacity: 0;

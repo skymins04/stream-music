@@ -48,7 +48,6 @@
     else {
       if (currentSong?.type === "youtube") {
         if ($FLAG_PLAYING) {
-          ($PLAYER_ELEMENT as any).setVolume($PLAYER_VOLUME);
           ($PLAYER_ELEMENT as any).playVideo();
         } else ($PLAYER_ELEMENT as any).pauseVideo();
       } else if (currentSong?.type === "local") {
@@ -75,7 +74,7 @@
    */
   PLAYER_VOLUME.subscribe((value) => {
     localStorage.setItem("playerVolume", String(value));
-    if ($FLAG_PLAYING) {
+    if ($FLAG_PLAYING && value !== undefined) {
       ($PLAYER_ELEMENT as any).setVolume(value);
     }
   });
