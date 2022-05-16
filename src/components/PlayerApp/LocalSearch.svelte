@@ -6,6 +6,7 @@
   import {
     FLAG_LOADING_SCREEN_SAVER,
     FLAG_LOCAL_SEARCH_POPUP,
+    LOADING_SCREEN_SAVER_MSG,
     PLAYLIST,
   } from "../common/stores";
   import { savePlayList, getDurationNumToStr } from "../common/functions";
@@ -13,10 +14,38 @@
 
   let localFiles: FileList;
 
+  const addPlayListLocalFile = async (
+    file: Blob,
+    songId: string,
+    title: string,
+    artist: string
+  ) => {
+    const audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
+    audioContext.decodeAudioData(await file.arrayBuffer(), (buf) => {
+      const duration = buf.duration;
+      $PLAYLIST.queue.push({
+        type: "local",
+        songId,
+        title,
+        artist,
+        duration: getDurationNumToStr(duration),
+      });
+      savePlayList();
+      successToast("플레이리스트에 추가되었습니다.");
+      LOADING_SCREEN_SAVER_MSG.set("");
+      FLAG_LOADING_SCREEN_SAVER.set(false);
+      FLAG_LOCAL_SEARCH_POPUP.set(false);
+    });
+  };
+
   /**
    * 재생 대기열에 ytSearchID에 해당하는 YouTube 영상 정보를 추가하는 함수
    */
-  const addQueueLocal = async () => {
+  const onClickAddBtn = async () => {
+    LOADING_SCREEN_SAVER_MSG.set("재생대기열에 추가 중...");
+    FLAG_LOADING_SCREEN_SAVER.set(true);
+
     if (localFiles.length !== 0) {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -45,29 +74,21 @@
               });
             }
             jsmediatags.read(localFiles[0], {
-              onSuccess: (tag) => {
-                $PLAYLIST.queue.push({
-                  type: "local",
+              onSuccess: async (tag) => {
+                addPlayListLocalFile(
+                  localFiles[0],
                   songId,
-                  title: tag.tags.album,
-                  artist: tag.tags.artist,
-                  duration: "test",
-                });
-                savePlayList();
-                successToast("플레이리스트에 추가되었습니다.");
-                FLAG_LOCAL_SEARCH_POPUP.set(false);
+                  tag.tags.album,
+                  tag.tags.artist
+                );
               },
-              onError: (err) => {
-                $PLAYLIST.queue.push({
-                  type: "local",
+              onError: async (err) => {
+                addPlayListLocalFile(
+                  localFiles[0],
                   songId,
-                  title: localFiles[0].name,
-                  artist: "missing",
-                  duration: "test",
-                });
-                savePlayList();
-                successToast("플레이리스트에 추가되었습니다.");
-                FLAG_LOCAL_SEARCH_POPUP.set(false);
+                  localFiles[0].name,
+                  "missing"
+                );
               },
             });
           };
@@ -83,8 +104,8 @@
 <Popup popupFlag={FLAG_LOCAL_SEARCH_POPUP}>
   <div class="viewport-title">로컬 음원파일 선택</div>
   <div class="frm-input">
-    <input type="file" bind:files={localFiles} />
-    <button on:click={addQueueLocal}>추가</button>
+    <input type="file" bind:files={localFiles} accept=".mp3,.wav,.flac" />
+    <button on:click={onClickAddBtn}>추가</button>
   </div>
 </Popup>
 

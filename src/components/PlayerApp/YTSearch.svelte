@@ -18,7 +18,7 @@
   /**
    * 재생 대기열에 ytSearchID에 해당하는 YouTube 영상 정보를 추가하는 함수
    */
-  const addQueueYT = () => {
+  const onClickAddBtn = () => {
     const ytURLRegExp =
       /^(http:|https:)?(\/\/)?(www\.)?(youtube.com|youtu.be)\/(watch|embed)?(\?v=|\/)?(\S+)?$/g;
     const songIdRegExp =
@@ -94,7 +94,7 @@
       placeholder="ex) https://www.youtube.com/watch?v=-Y9VtoPvtuM"
       bind:value={ytURL}
     />
-    <button on:click={addQueueYT}>추가</button>
+    <button on:click={onClickAddBtn}>추가</button>
   </div>
   <div class="displaynone">
     {#if ytSearchID !== ""}

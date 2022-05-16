@@ -5123,7 +5123,7 @@ var app = (function () {
 
     	emptycover = new EmptyCover({
     			props: {
-    				msg: "플레이리스트에 대기 중인 곡이 없습니다.<br>YouTube 또는 로컬 음원파일(mp3, wav)을 추가해보세요!",
+    				msg: "플레이리스트에 대기 중인 곡이 없습니다.<br>YouTube 또는 로컬 음원파일(MP3, WAV, FLAC)을 추가해보세요!",
     				height: "100%"
     			},
     			$$inline: true
@@ -8507,17 +8507,17 @@ var app = (function () {
     			div2 = element("div");
     			if (if_block) if_block.c();
     			attr_dev(div0, "class", "viewport-title svelte-xfvvgr");
-    			add_location(div0, file$2, 71, 2, 2350);
+    			add_location(div0, file$2, 71, 2, 2353);
     			attr_dev(input, "type", "text");
     			attr_dev(input, "placeholder", "ex) https://www.youtube.com/watch?v=-Y9VtoPvtuM");
     			attr_dev(input, "class", "svelte-xfvvgr");
-    			add_location(input, file$2, 73, 4, 2425);
+    			add_location(input, file$2, 73, 4, 2428);
     			attr_dev(button, "class", "svelte-xfvvgr");
-    			add_location(button, file$2, 78, 4, 2554);
+    			add_location(button, file$2, 78, 4, 2557);
     			attr_dev(div1, "class", "frm-input svelte-xfvvgr");
-    			add_location(div1, file$2, 72, 2, 2397);
+    			add_location(div1, file$2, 72, 2, 2400);
     			attr_dev(div2, "class", "displaynone svelte-xfvvgr");
-    			add_location(div2, file$2, 80, 2, 2607);
+    			add_location(div2, file$2, 80, 2, 2613);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div0, anchor);
@@ -8535,7 +8535,7 @@ var app = (function () {
     			if (!mounted) {
     				dispose = [
     					listen_dev(input, "input", /*input_input_handler*/ ctx[5]),
-    					listen_dev(button, "click", /*addQueueYT*/ ctx[2], false, false, false)
+    					listen_dev(button, "click", /*onClickAddBtn*/ ctx[2], false, false, false)
     				];
 
     				mounted = true;
@@ -8672,7 +8672,7 @@ var app = (function () {
     	/**
      * 재생 대기열에 ytSearchID에 해당하는 YouTube 영상 정보를 추가하는 함수
      */
-    	const addQueueYT = () => {
+    	const onClickAddBtn = () => {
     		const ytURLRegExp = /^(http:|https:)?(\/\/)?(www\.)?(youtube.com|youtu.be)\/(watch|embed)?(\?v=|\/)?(\S+)?$/g;
     		const songIdRegExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
     		const songIdMatch = ytURL.match(songIdRegExp);
@@ -8762,7 +8762,7 @@ var app = (function () {
     		ytURL,
     		ytSearchID,
     		ytPlayer,
-    		addQueueYT,
+    		onClickAddBtn,
     		onReadyYoutubePlayer,
     		onStateChangeYoutubePlayer,
     		$PLAYLIST
@@ -8781,7 +8781,7 @@ var app = (function () {
     	return [
     		ytURL,
     		ytSearchID,
-    		addQueueYT,
+    		onClickAddBtn,
     		onReadyYoutubePlayer,
     		onStateChangeYoutubePlayer,
     		input_input_handler
@@ -12896,7 +12896,7 @@ var app = (function () {
     const { console: console_1 } = globals;
     const file$1 = "src/components/PlayerApp/LocalSearch.svelte";
 
-    // (70:0) <Popup popupFlag={FLAG_LOCAL_SEARCH_POPUP}>
+    // (73:0) <Popup popupFlag={FLAG_LOCAL_SEARCH_POPUP}>
     function create_default_slot$1(ctx) {
     	let div0;
     	let t1;
@@ -12918,14 +12918,15 @@ var app = (function () {
     			button = element("button");
     			button.textContent = "추가";
     			attr_dev(div0, "class", "viewport-title svelte-doxa78");
-    			add_location(div0, file$1, 70, 2, 2949);
+    			add_location(div0, file$1, 73, 2, 2997);
     			attr_dev(input, "type", "file");
+    			attr_dev(input, "accept", ".mp3,.wav,.flac");
     			attr_dev(input, "class", "svelte-doxa78");
-    			add_location(input, file$1, 72, 4, 3024);
+    			add_location(input, file$1, 75, 4, 3072);
     			attr_dev(button, "class", "svelte-doxa78");
-    			add_location(button, file$1, 73, 4, 3074);
+    			add_location(button, file$1, 76, 4, 3147);
     			attr_dev(div1, "class", "frm-input svelte-doxa78");
-    			add_location(div1, file$1, 71, 2, 2996);
+    			add_location(div1, file$1, 74, 2, 3044);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div0, anchor);
@@ -12938,7 +12939,7 @@ var app = (function () {
     			if (!mounted) {
     				dispose = [
     					listen_dev(input, "change", /*input_change_handler*/ ctx[2]),
-    					listen_dev(button, "click", /*addQueueLocal*/ ctx[1], false, false, false)
+    					listen_dev(button, "click", /*onClickAddBtn*/ ctx[1], false, false, false)
     				];
 
     				mounted = true;
@@ -12958,7 +12959,7 @@ var app = (function () {
     		block,
     		id: create_default_slot$1.name,
     		type: "slot",
-    		source: "(70:0) <Popup popupFlag={FLAG_LOCAL_SEARCH_POPUP}>",
+    		source: "(73:0) <Popup popupFlag={FLAG_LOCAL_SEARCH_POPUP}>",
     		ctx
     	});
 
@@ -12992,7 +12993,7 @@ var app = (function () {
     		p: function update(ctx, [dirty]) {
     			const popup_changes = {};
 
-    			if (dirty & /*$$scope, localFiles*/ 17) {
+    			if (dirty & /*$$scope, localFiles*/ 33) {
     				popup_changes.$$scope = { dirty, ctx };
     			}
 
@@ -13031,10 +13032,35 @@ var app = (function () {
     	validate_slots('LocalSearch', slots, []);
     	let localFiles;
 
+    	const addPlayListLocalFile = async (file, songId, title, artist) => {
+    		const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    		audioContext.decodeAudioData(await file.arrayBuffer(), buf => {
+    			const duration = buf.duration;
+
+    			$PLAYLIST.queue.push({
+    				type: "local",
+    				songId,
+    				title,
+    				artist,
+    				duration: getDurationNumToStr(duration)
+    			});
+
+    			savePlayList();
+    			successToast("플레이리스트에 추가되었습니다.");
+    			LOADING_SCREEN_SAVER_MSG.set("");
+    			FLAG_LOADING_SCREEN_SAVER.set(false);
+    			FLAG_LOCAL_SEARCH_POPUP.set(false);
+    		});
+    	};
+
     	/**
      * 재생 대기열에 ytSearchID에 해당하는 YouTube 영상 정보를 추가하는 함수
      */
-    	const addQueueLocal = async () => {
+    	const onClickAddBtn = async () => {
+    		LOADING_SCREEN_SAVER_MSG.set("재생대기열에 추가 중...");
+    		FLAG_LOADING_SCREEN_SAVER.set(true);
+
     		if (localFiles.length !== 0) {
     			const reader = new FileReader();
 
@@ -13068,31 +13094,11 @@ var app = (function () {
     						}
 
     						jsmediatags_min.read(localFiles[0], {
-    							onSuccess: tag => {
-    								$PLAYLIST.queue.push({
-    									type: "local",
-    									songId,
-    									title: tag.tags.album,
-    									artist: tag.tags.artist,
-    									duration: "test"
-    								});
-
-    								savePlayList();
-    								successToast("플레이리스트에 추가되었습니다.");
-    								FLAG_LOCAL_SEARCH_POPUP.set(false);
+    							onSuccess: async tag => {
+    								addPlayListLocalFile(localFiles[0], songId, tag.tags.album, tag.tags.artist);
     							},
-    							onError: err => {
-    								$PLAYLIST.queue.push({
-    									type: "local",
-    									songId,
-    									title: localFiles[0].name,
-    									artist: "missing",
-    									duration: "test"
-    								});
-
-    								savePlayList();
-    								successToast("플레이리스트에 추가되었습니다.");
-    								FLAG_LOCAL_SEARCH_POPUP.set(false);
+    							onError: async err => {
+    								addPlayListLocalFile(localFiles[0], songId, localFiles[0].name, "missing");
     							}
     						});
     					};
@@ -13122,12 +13128,16 @@ var app = (function () {
     		jsmediatags,
     		sha256: sha256.sha256,
     		successToast,
+    		FLAG_LOADING_SCREEN_SAVER,
     		FLAG_LOCAL_SEARCH_POPUP,
+    		LOADING_SCREEN_SAVER_MSG,
     		PLAYLIST,
     		savePlayList,
+    		getDurationNumToStr,
     		Popup,
     		localFiles,
-    		addQueueLocal,
+    		addPlayListLocalFile,
+    		onClickAddBtn,
     		$PLAYLIST
     	});
 
@@ -13139,7 +13149,7 @@ var app = (function () {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [localFiles, addQueueLocal, input_change_handler];
+    	return [localFiles, onClickAddBtn, input_change_handler];
     }
 
     class LocalSearch extends SvelteComponentDev {
@@ -13157,52 +13167,45 @@ var app = (function () {
     }
 
     (() => {
-      const agent = window.navigator.userAgent.toLowerCase();
-      if (agent.indexOf("mobile") !== -1) {
-        FLAG_PROTECTOR.set(true);
-        PROTECTOR_CONTENT.set("모바일은 지원하지 않습니다.");
-      }
-      if (!window.indexedDB) {
-        FLAG_PROTECTOR.set(true);
-        PROTECTOR_CONTENT.set(
-          "해당 브라우저는 IndexedDB를 지원하지 않습니다.<br>Chrome 브라우저를 통해 접속하는 것을 권장합니다."
-        );
-      } else {
-        const indexedDB = window.indexedDB.open("streamMusic");
-
-        indexedDB.onupgradeneeded = (event) => {
-          const db = indexedDB.result;
-          db.createObjectStore("streamMusic", {
-            keyPath: "id",
-          });
-
-          indexedDB.onerror = (event) => {
+        const agent = window.navigator.userAgent.toLowerCase();
+        if (agent.indexOf("mobile") !== -1) {
             FLAG_PROTECTOR.set(true);
-            PROTECTOR_CONTENT.set(
-              "해당 브라우저는 IndexedDB를 지원하지 않습니다.<br>Chrome 브라우저를 통해 접속하는 것을 권장합니다."
-            );
-          };
-        };
-      }
-
-      // 실수로 페이지를 빠져나가는 것을 방지
-      window.addEventListener("beforeunload", (event) => {
-        event.preventDefault();
-        event.returnValue = "";
-      });
-
-      FLAG_NETWORK_STATUS.set(window.navigator.onLine);
-      if (!window.navigator.onLine) {
-        errorToast("네트워크가 연결되지 않았습니다. 연결상태를 확인하세요.");
-      }
-      window.addEventListener("online", () => {
-        infoToast("네트워크가 연결되었습니다.");
-        FLAG_NETWORK_STATUS.set(true);
-      });
-      window.addEventListener("offline", () => {
-        errorToast("네트워크가 해제가 감지되었습니다.");
-        FLAG_NETWORK_STATUS.set(false);
-      });
+            PROTECTOR_CONTENT.set("모바일은 지원하지 않습니다.");
+        }
+        if (!window.indexedDB) {
+            FLAG_PROTECTOR.set(true);
+            PROTECTOR_CONTENT.set("해당 브라우저는 IndexedDB를 지원하지 않습니다.<br>Chrome 브라우저를 통해 접속하는 것을 권장합니다.");
+        }
+        else {
+            const indexedDB = window.indexedDB.open("streamMusic");
+            indexedDB.onupgradeneeded = (event) => {
+                const db = indexedDB.result;
+                db.createObjectStore("streamMusic", {
+                    keyPath: "id",
+                });
+                indexedDB.onerror = (event) => {
+                    FLAG_PROTECTOR.set(true);
+                    PROTECTOR_CONTENT.set("해당 브라우저는 IndexedDB를 지원하지 않습니다.<br>Chrome 브라우저를 통해 접속하는 것을 권장합니다.");
+                };
+            };
+        }
+        // 실수로 페이지를 빠져나가는 것을 방지
+        window.addEventListener("beforeunload", (event) => {
+            event.preventDefault();
+            event.returnValue = "";
+        });
+        FLAG_NETWORK_STATUS.set(window.navigator.onLine);
+        if (!window.navigator.onLine) {
+            errorToast("네트워크가 연결되지 않았습니다. 연결상태를 확인하세요.");
+        }
+        window.addEventListener("online", () => {
+            infoToast("네트워크가 연결되었습니다.");
+            FLAG_NETWORK_STATUS.set(true);
+        });
+        window.addEventListener("offline", () => {
+            errorToast("네트워크가 해제가 감지되었습니다.");
+            FLAG_NETWORK_STATUS.set(false);
+        });
     })();
 
     /* src/components/PlayerApp/index.svelte generated by Svelte v3.48.0 */
