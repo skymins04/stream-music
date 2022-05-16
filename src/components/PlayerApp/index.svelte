@@ -27,7 +27,7 @@
     PLAYER_ELEMENT,
   } from "../common/stores";
 
-  import "./protectionLogic";
+  import "./preSetup";
 </script>
 
 <Protector>

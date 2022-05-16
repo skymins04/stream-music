@@ -25,6 +25,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    text-align: center;
     color: var(--color1);
     font-size: 1.5em;
 

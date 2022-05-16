@@ -1,22 +1,89 @@
 <script lang="ts">
-  import { errorToast, successToast } from "../common/toast";
+  import * as jsmediatags from "../common/jsmediatags.min.js";
+  import { sha256 } from "js-sha256";
+
+  import { errorToast, infoToast, successToast } from "../common/toast";
   import {
     FLAG_LOADING_SCREEN_SAVER,
     FLAG_LOCAL_SEARCH_POPUP,
+    PLAYLIST,
   } from "../common/stores";
   import { savePlayList, getDurationNumToStr } from "../common/functions";
   import Popup from "../common/Popup.svelte";
 
+  let localFiles: FileList;
+
   /**
    * 재생 대기열에 ytSearchID에 해당하는 YouTube 영상 정보를 추가하는 함수
    */
-  const addQueueLocal = () => {};
+  const addQueueLocal = async () => {
+    if (localFiles.length !== 0) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const fileContent = reader.result as string;
+        const songId = sha256(fileContent);
+
+        const indexedDB = window.indexedDB.open("streamMusic");
+        indexedDB.onerror = (event) => {};
+        indexedDB.onsuccess = (event) => {
+          const db = indexedDB.result;
+          const transaction = db.transaction(["streamMusic"], "readwrite");
+
+          transaction.onerror = (event) => {
+            console.log("transaction fail");
+          };
+
+          const store = transaction.objectStore("streamMusic");
+          const storeRequest = store.get(songId);
+
+          storeRequest.onsuccess = (event) => {
+            if (!storeRequest.result) {
+              store.add({
+                id: songId,
+                name: localFiles[0].name,
+                file: fileContent,
+              });
+            }
+            jsmediatags.read(localFiles[0], {
+              onSuccess: (tag) => {
+                $PLAYLIST.queue.push({
+                  type: "local",
+                  songId,
+                  title: tag.tags.album,
+                  artist: tag.tags.artist,
+                  duration: "test",
+                });
+                savePlayList();
+                successToast("플레이리스트에 추가되었습니다.");
+                FLAG_LOCAL_SEARCH_POPUP.set(false);
+              },
+              onError: (err) => {
+                $PLAYLIST.queue.push({
+                  type: "local",
+                  songId,
+                  title: localFiles[0].name,
+                  artist: "missing",
+                  duration: "test",
+                });
+                savePlayList();
+                successToast("플레이리스트에 추가되었습니다.");
+                FLAG_LOCAL_SEARCH_POPUP.set(false);
+              },
+            });
+          };
+          storeRequest.onerror = (event) => {};
+        };
+      };
+
+      reader.readAsText(localFiles[0]);
+    }
+  };
 </script>
 
 <Popup popupFlag={FLAG_LOCAL_SEARCH_POPUP}>
   <div class="viewport-title">로컬 음원파일 선택</div>
   <div class="frm-input">
-    <input type="file" />
+    <input type="file" bind:files={localFiles} />
     <button on:click={addQueueLocal}>추가</button>
   </div>
 </Popup>
