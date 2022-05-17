@@ -29,7 +29,10 @@ export const savePlayList = () => {
  * 재생을 중지하는 함수
  * @param pause 재생상태 여부, true: 재생, false: 일시정지
  */
-export const stopSong = (pause: boolean = false) => {
+export const stopSong = (
+  pause: boolean = false,
+  playerElementBinding: boolean = true
+) => {
   const currentSong = get(PLAYLIST).currentSong;
   if (currentSong !== null) {
     if (get(PLAYLIST).history.length == 50) get(PLAYLIST).history.splice(49, 1); // 히스토리는 최대 50개까지만 저장
@@ -39,7 +42,7 @@ export const stopSong = (pause: boolean = false) => {
   YT_VIDEO_ID.set("");
   LOCAL_SONG_PATH.set("");
   FLAG_PLAYING.set(pause);
-  PLAYER_ELEMENT.set({});
+  if (playerElementBinding) PLAYER_ELEMENT.set({});
   FLAG_PLAYER_IS_READY.set(false);
   PLAYER_CURRENT_TIME.set(0);
   PLAYER_DURATION.set("00:00");
@@ -98,6 +101,14 @@ export const playSong = (pause: boolean) => {
               LOCAL_SONG_PATH.set(
                 URL.createObjectURL(new Blob([storeRequest.result.file]))
               );
+              if (get(FLAG_PLAYING)) {
+                const interval = setInterval(() => {
+                  if (get(PLAYER_ELEMENT) !== {}) {
+                    (get(PLAYER_ELEMENT) as HTMLAudioElement).play();
+                    clearInterval(interval);
+                  }
+                }, 1);
+              }
             };
           }
         }, failed);
@@ -132,10 +143,13 @@ export const playSong = (pause: boolean) => {
  * 재생대기열 내의 다음곡을 재생하는 함수
  * @param pause 재생상태 여부, true: 재생, false: 일시정지
  */
-export const fowardSong = (pause: boolean) => {
+export const fowardSong = (
+  pause: boolean,
+  playerElementBinding: boolean = true
+) => {
   if (!get(FLAG_NEXT_SONG_LOADING)) {
     FLAG_NEXT_SONG_LOADING.set(true);
-    stopSong();
+    stopSong(false, playerElementBinding);
     if (get(PLAYLIST).queue.length !== 0) {
       setTimeout(() => {
         playSong(pause);

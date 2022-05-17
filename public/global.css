@@ -199,4 +199,11 @@ button:focus {
   #playlist-area .title {
     margin-bottom: 15px !important;
   }
+
+  #local-player-area .icon {
+    margin-top: 0 !important;
+  }
+  #local-player {
+    display: none;
+  }
 }

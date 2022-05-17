@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { errorToast } from "../common/toast";
   import {
     FLAG_PLAYING,
     PLAYLIST,
@@ -21,6 +20,7 @@
   } from "../common/functions";
 
   import Slider from "../common/Slider.svelte";
+  import App from "../../App.svelte";
 
   let playerDurationNum = 0;
   let playerCurrentTimeStr = "00:00";
@@ -41,10 +41,11 @@
     // 현재 재생중인 곡이 있는 경우에서 재생 토글
     else {
       if (currentSong?.type === "youtube") {
-        if ($FLAG_PLAYING) {
-          ($PLAYER_ELEMENT as any).playVideo();
-        } else ($PLAYER_ELEMENT as any).pauseVideo();
+        if ($FLAG_PLAYING) ($PLAYER_ELEMENT as any).playVideo();
+        else ($PLAYER_ELEMENT as any).pauseVideo();
       } else if (currentSong?.type === "local") {
+        if ($FLAG_PLAYING) ($PLAYER_ELEMENT as HTMLMediaElement).play();
+        else ($PLAYER_ELEMENT as HTMLMediaElement).pause();
       }
     }
   };
@@ -69,7 +70,10 @@
   PLAYER_VOLUME.subscribe((value) => {
     localStorage.setItem("playerVolume", String(value));
     if ($FLAG_PLAYING && value !== undefined) {
-      ($PLAYER_ELEMENT as any).setVolume(value);
+      if ($PLAYLIST.currentSong?.type === "youtube")
+        ($PLAYER_ELEMENT as any).setVolume(value);
+      else if ($PLAYLIST.currentSong?.type === "local")
+        ($PLAYER_ELEMENT as HTMLAudioElement).volume = value / 100;
     }
   });
 
@@ -79,7 +83,10 @@
   PLAYER_CURRENT_TIME.subscribe((value) => {
     playerCurrentTimeStr = getDurationNumToStr(value);
     if ($FLAG_ON_CHANGE_CURRENT_TIME) {
-      ($PLAYER_ELEMENT as any).seekTo(value, false);
+      if ($PLAYLIST.currentSong?.type === "youtube")
+        ($PLAYER_ELEMENT as any).seekTo(value, false);
+      else if ($PLAYLIST.currentSong?.type === "local")
+        ($PLAYER_ELEMENT as HTMLAudioElement).currentTime = value / 100;
     }
   });
 
@@ -148,9 +155,20 @@
               !$FLAG_PLAYER_IS_BUFFERING
             ) {
               FLAG_ON_CHANGE_CURRENT_TIME.set(true);
-              $PLAYER_ELEMENT.seekTo($PLAYER_CURRENT_TIME, false);
-            } else if (!$FLAG_PLAYING && $FLAG_PLAYER_IS_READY)
-              $PLAYER_ELEMENT.playVideo();
+              if ($PLAYLIST.currentSong?.type === "youtube")
+                $PLAYER_ELEMENT.seekTo($PLAYER_CURRENT_TIME, false);
+              else if ($PLAYLIST.currentSong?.type === "local")
+                $PLAYER_ELEMENT.currentTime = $PLAYER_CURRENT_TIME;
+            } else if (!$FLAG_PLAYING && $FLAG_PLAYER_IS_READY) {
+              if ($PLAYLIST.currentSong?.type === "youtube")
+                $PLAYER_ELEMENT.playVideo();
+              else if ($PLAYLIST.currentSong?.type === "local") {
+                FLAG_PLAYING.set(true);
+                $PLAYER_ELEMENT.volume = $PLAYER_VOLUME / 100;
+                $PLAYER_ELEMENT.currentTime = $PLAYER_CURRENT_TIME;
+                $PLAYER_ELEMENT.play();
+              }
+            }
           },
           onMouseUp: () => {
             FLAG_ON_CHANGE_CURRENT_TIME.set(false);
@@ -159,9 +177,20 @@
               $FLAG_PLAYER_IS_READY &&
               !$FLAG_PLAYER_IS_BUFFERING
             )
-              $PLAYER_ELEMENT.seekTo($PLAYER_CURRENT_TIME);
-            else if (!$FLAG_PLAYING && $FLAG_PLAYER_IS_READY)
-              $PLAYER_ELEMENT.playVideo();
+              if ($PLAYLIST.currentSong?.type === "youtube")
+                $PLAYER_ELEMENT.seekTo($PLAYER_CURRENT_TIME);
+              else if ($PLAYLIST.currentSong?.type === "local")
+                $PLAYER_ELEMENT.currentTime = $PLAYER_CURRENT_TIME;
+              else if (!$FLAG_PLAYING && $FLAG_PLAYER_IS_READY) {
+                if ($PLAYLIST.currentSong?.type === "youtube")
+                  $PLAYER_ELEMENT.playVideo();
+                else if ($PLAYLIST.currentSong?.type === "local") {
+                  FLAG_PLAYING.set(true);
+                  $PLAYER_ELEMENT.volume = $PLAYER_VOLUME / 100;
+                  $PLAYER_ELEMENT.currentTime = $PLAYER_CURRENT_TIME;
+                  $PLAYER_ELEMENT.play();
+                }
+              }
           },
         }}
       />
