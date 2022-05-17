@@ -133,7 +133,8 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    background-image: url(/img/mainlanding-bg.png);
+    background-image: url(/img/mainlanding-bg.jpeg);
+    background-size: 100% 100%;
     background-position: center center;
     background-repeat: no-repeat;
     overflow-y: auto;
