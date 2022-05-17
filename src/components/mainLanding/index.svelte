@@ -1,5 +1,22 @@
 <script lang="ts">
+  import { fade } from "svelte/transition";
+  import * as animateScroll from "svelte-scrollto";
+
   import { FLAG_PAGE_SELECTER } from "../common/stores";
+
+  let imgSrcs = ["/img/mainlanding-img1.png", "/img/mainlanding-img2.png"];
+  let imgSrcsLength = imgSrcs.length;
+  let imgSliderIndex = 0;
+
+  const onClickImgSliderLeftBtn = () => {
+    if (imgSliderIndex === 0) imgSliderIndex = imgSrcsLength - 1;
+    else imgSliderIndex -= 1;
+  };
+
+  const onClickImgSliderRightBtn = () => {
+    if (imgSliderIndex + 1 === imgSrcsLength) imgSliderIndex = 0;
+    else imgSliderIndex += 1;
+  };
 </script>
 
 <div id="main-landing">
@@ -9,17 +26,27 @@
         <h1>STREAM-MUSIC</h1>
       </div>
       <div class="header-right">
-        <div class="link">ABOUT</div>
-        <div class="link">CONTACT-US</div>
-        <div
+        <a
+          on:click={() =>
+            animateScroll.scrollTo({
+              element: "#ABOUT",
+              container: "#main-landing",
+              duration: 1000,
+            })}
+          class="link">ABOUT</a
+        >
+        <a
+          href="#"
           class="link"
           on:click={() => {
             FLAG_PAGE_SELECTER.set(1);
           }}
         >
           SERVICE
-        </div>
-        <div class="link btn">LOGIN</div>
+        </a>
+        <a href="#" class="link">CONTACT-US</a>
+        <a href="#" class="link">DONATION</a>
+        <a href="#" class="link btn">LOGIN</a>
       </div>
     </div>
     <div class="article">
@@ -32,16 +59,43 @@
         </p>
         <div class="btns">
           <div class="btn primary">시작하기</div>
-          <div class="btn">더 알아보기</div>
+          <a
+            on:click={() =>
+              animateScroll.scrollTo({
+                element: "#ABOUT",
+                container: "#main-landing",
+                duration: 1000,
+              })}
+            class="btn">더 알아보기</a
+          >
         </div>
         <div class="img-slider">
-          <div class="imgs">
-            <img src="/img/mainlanding-img1.png" alt="" />
-            <img src="/img/mainlanding-img2.png" alt="" />
+          {#each [imgSrcs[imgSliderIndex]] as src (imgSliderIndex)}
+            <img class="img" transition:fade {src} alt="" />
+          {/each}
+          <div class="left-btn" on:click={onClickImgSliderLeftBtn}>
+            <svg
+              class="icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 256 512"
+              ><path
+                d="M192 448c-8.188 0-16.38-3.125-22.62-9.375l-160-160c-12.5-12.5-12.5-32.75 0-45.25l160-160c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25L77.25 256l137.4 137.4c12.5 12.5 12.5 32.75 0 45.25C208.4 444.9 200.2 448 192 448z"
+              /></svg
+            >
+          </div>
+          <div class="right-btn" on:click={onClickImgSliderRightBtn}>
+            <svg
+              class="icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 256 512"
+              ><path
+                d="M64 448c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L178.8 256L41.38 118.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160c12.5 12.5 12.5 32.75 0 45.25l-160 160C80.38 444.9 72.19 448 64 448z"
+              /></svg
+            >
           </div>
         </div>
       </div>
-      <div class="section">
+      <div class="section" id="ABOUT">
         <h2>STREAM-MUSIC 주요 기능</h2>
         <div class="grid">
           <div class="item">
@@ -55,8 +109,9 @@
             ><span class="title">Dashboard</span>
             <p>
               플레이리스트를 재생하고 관리할 수 있는 깔끔한 UI입니다.
-              YouTube음원과 로컬파일음원을 모두 재생할 수 있는 통합 플레이어를
-              제공합니다.
+              YouTube음원과 로컬파일음원을 모두 재생할 수 있는 <span
+                class="bold">통합 플레이어</span
+              >를 제공합니다.
             </p>
           </div>
           <div class="item">
@@ -69,8 +124,10 @@
               /></svg
             ><span class="title">Playlist</span>
             <p>
-              YouTube음원와 로컬파일음원(MP3, WAV, FLAC)으로 플레이리스트를
-              구성하고 재생할 수 있으며, 파일로 내보내거나 가져올 수 있습니다.
+              <span class="bold">YouTube음원와 로컬파일음원</span>(MP3, WAV,
+              FLAC)
+              <span class="bold">으로 플레이리스트를 구성하고 재생</span>할 수
+              있으며, 파일로 내보내거나 가져올 수 있습니다.
             </p>
           </div>
           <div class="item">
@@ -83,8 +140,9 @@
               /></svg
             ><span class="title">Streaming</span>
             <p>
-              OBS, XSplit 등의 방송송출프로그램을 통해 플레이리스트를 스트리밍할
-              수 있습니다. 자동으로 플레이리스트를 업데이트하여 보여줍니다.
+              OBS, XSplit 등의 방송송출프로그램을 통해 <span class="bold"
+                >플레이리스트를 스트리밍</span
+              >할 수 있습니다. 자동으로 플레이리스트를 업데이트하여 보여줍니다.
             </p>
           </div>
           <div class="item">
@@ -98,8 +156,9 @@
             >
             <span class="title">Support Local Audio File</span>
             <p>
-              타 플랫폼에서는 지원하지 않는 로컬파일음원 재생을 제공합니다. MP3,
-              WAV, FLAC 파일 형식을 지원합니다.
+              타 플랫폼에서는 지원하지 않는 <span class="bold"
+                >로컬파일음원 재생을 제공</span
+              >합니다. MP3, WAV, FLAC 파일 형식을 지원합니다.
             </p>
           </div>
           <div class="item">
@@ -113,8 +172,9 @@
             >
             <span class="title">History</span>
             <p>
-              재생했던 음원들의 히스토리 기능을 제공합니다. 이전에 재생했던
-              음원들은 간편하게 플레이리스트에 추가하세요!
+              재생했던 음원들의 <span class="bold">히스토리 기능</span>을
+              제공합니다. 이전에 재생했던 음원들은 간편하게 플레이리스트에
+              추가하세요!
             </p>
           </div>
         </div>
@@ -174,6 +234,7 @@
           .link:hover {
             cursor: pointer;
             font-weight: 300;
+            text-decoration: none !important;
           }
         }
       }
@@ -189,8 +250,8 @@
           justify-content: flex-start;
           align-items: center;
           flex-direction: column;
-          padding-left: 20px;
-          padding-right: 20px;
+          padding-left: 30px;
+          padding-right: 30px;
 
           * {
             color: white;
@@ -209,7 +270,9 @@
           }
 
           p {
+            font-size: 0.9em !important;
             margin-top: 10px;
+            word-break: keep-all;
           }
 
           .btns {
@@ -227,37 +290,74 @@
               display: flex;
               justify-content: center;
               align-items: center;
+              transition: 0.2s;
             }
             .btn:hover {
+              background-color: white;
+              color: var(--color1);
               cursor: pointer;
+              text-decoration: none;
             }
 
             .btn.primary {
               background-color: white;
               color: var(--color1);
               font-weight: 400;
+              transition: 0.2s;
+            }
+            .btn.primary:hover {
+              background-color: var(--color1);
+              border: 1px solid var(--color2);
+              color: white;
             }
           }
 
           .img-slider {
             position: relative;
             width: 100%;
+            padding-bottom: 100%;
             max-width: 600px;
-            overflow: hidden;
             box-shadow: 0 0 10px black;
 
-            .imgs {
-              position: relative;
-              width: 200%;
-              display: flex;
-              justify-items: center;
-              align-items: center;
-              flex-direction: row;
-              flex-wrap: nowrap;
+            img {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+            }
 
-              img {
-                width: 50%;
-              }
+            .left-btn,
+            .right-btn {
+              position: absolute;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              top: 50%;
+              width: 50px;
+              height: 50px;
+              border-radius: 50%;
+              background-color: #ccc;
+              opacity: 0.8;
+              transform: translateY(-50%);
+              transition: 0.2s;
+            }
+            .left-btn .icon,
+            .right-btn .icon {
+              width: 30px;
+              height: 30px;
+              fill: #555;
+            }
+            .left-btn {
+              left: -25px;
+            }
+            .right-btn {
+              right: -25px;
+            }
+            .left-btn:hover,
+            .right-btn:hover {
+              cursor: pointer;
+              opacity: 0.9;
             }
           }
 
@@ -279,7 +379,7 @@
               justify-content: flex-start;
               align-items: center;
               flex-direction: column;
-              margin-top: 50px;
+              margin-top: 80px;
               gap: 10px;
 
               .icon {
@@ -300,6 +400,11 @@
                 font-size: 16px !important;
                 color: #555 !important;
                 line-height: 2em;
+                word-break: keep-all;
+
+                .bold {
+                  font-weight: 400;
+                }
               }
             }
           }
@@ -327,7 +432,8 @@
 
         h2 {
           padding-bottom: 30px;
-          border-bottom: 1px solid #ccc;
+          border-bottom: 1px solid #eee;
+          margin-bottom: 0;
         }
 
         .grid {

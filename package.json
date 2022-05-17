@@ -42,6 +42,7 @@
     "jsmediatags": "^3.9.7",
     "node-sass": "^7.0.1",
     "svelte-media-query": "^1.1.2",
+    "svelte-scrollto": "^0.2.0",
     "svelte-toasts": "^1.1.2",
     "svelte-youtube": "^0.0.2"
   }
