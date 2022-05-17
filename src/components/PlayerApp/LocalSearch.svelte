@@ -9,12 +9,12 @@
     LOADING_SCREEN_SAVER_MSG,
     PLAYLIST,
   } from "../common/stores";
-  import { savePlayList, getDurationNumToStr } from "../common/functions";
+  import { getDurationNumToStr, savePlayList } from "../common/functions";
   import Popup from "../common/Popup.svelte";
 
   let localFiles: FileList;
 
-  const addPlayListLocalFile = async (
+  const addToPlayListLocalFile = async (
     file: Blob,
     songId: string,
     title: string,
@@ -53,13 +53,21 @@
         const songId = sha256(fileContent);
 
         const indexedDB = window.indexedDB.open("streamMusic");
-        indexedDB.onerror = (event) => {};
+        indexedDB.onerror = (event) => {
+          errorToast("재생목록에 추가할 수 없습니다.");
+          LOADING_SCREEN_SAVER_MSG.set("");
+          FLAG_LOADING_SCREEN_SAVER.set(false);
+          FLAG_LOCAL_SEARCH_POPUP.set(false);
+        };
         indexedDB.onsuccess = (event) => {
           const db = indexedDB.result;
           const transaction = db.transaction(["streamMusic"], "readwrite");
 
           transaction.onerror = (event) => {
-            console.log("transaction fail");
+            errorToast("재생목록에 추가할 수 없습니다.");
+            LOADING_SCREEN_SAVER_MSG.set("");
+            FLAG_LOADING_SCREEN_SAVER.set(false);
+            FLAG_LOCAL_SEARCH_POPUP.set(false);
           };
 
           const store = transaction.objectStore("streamMusic");
@@ -75,7 +83,7 @@
             }
             jsmediatags.read(localFiles[0], {
               onSuccess: async (tag) => {
-                addPlayListLocalFile(
+                addToPlayListLocalFile(
                   localFiles[0],
                   songId,
                   tag.tags.album,
@@ -83,16 +91,24 @@
                 );
               },
               onError: async (err) => {
-                addPlayListLocalFile(
+                infoToast(
+                  "메타데이터가 없는 음원파일입니다. 아티스트 명을 수동으로 기입해주세요."
+                );
+                addToPlayListLocalFile(
                   localFiles[0],
                   songId,
-                  localFiles[0].name,
+                  localFiles[0].name.replace(/(.mp3|.wav|.flac)$/, ""),
                   "missing"
                 );
               },
             });
           };
-          storeRequest.onerror = (event) => {};
+          storeRequest.onerror = (event) => {
+            errorToast("재생목록에 추가할 수 없습니다.");
+            LOADING_SCREEN_SAVER_MSG.set("");
+            FLAG_LOADING_SCREEN_SAVER.set(false);
+            FLAG_LOCAL_SEARCH_POPUP.set(false);
+          };
         };
       };
 
