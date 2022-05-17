@@ -9,7 +9,12 @@
     LOADING_SCREEN_SAVER_MSG,
     PLAYLIST,
   } from "../common/stores";
-  import { getDurationNumToStr, savePlayList } from "../common/functions";
+  import {
+    getDurationNumToStr,
+    savePlayList,
+    accessIndexedDB,
+    getFileReader,
+  } from "../common/functions";
   import Popup from "../common/Popup.svelte";
 
   let localFiles: FileList;
@@ -46,45 +51,33 @@
     LOADING_SCREEN_SAVER_MSG.set("재생대기열에 추가 중...");
     FLAG_LOADING_SCREEN_SAVER.set(true);
 
+    const failed = (event: Event) => {
+      errorToast("재생목록에 추가할 수 없습니다.");
+      LOADING_SCREEN_SAVER_MSG.set("");
+      FLAG_LOADING_SCREEN_SAVER.set(false);
+      FLAG_LOCAL_SEARCH_POPUP.set(false);
+    };
+
     if (localFiles.length !== 0) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
+      getFileReader(localFiles[0], (reader, file) => {
         const fileContent = reader.result as string;
         const songId = sha256(fileContent);
 
-        const indexedDB = window.indexedDB.open("streamMusic");
-        indexedDB.onerror = (event) => {
-          errorToast("재생목록에 추가할 수 없습니다.");
-          LOADING_SCREEN_SAVER_MSG.set("");
-          FLAG_LOADING_SCREEN_SAVER.set(false);
-          FLAG_LOCAL_SEARCH_POPUP.set(false);
-        };
-        indexedDB.onsuccess = (event) => {
-          const db = indexedDB.result;
-          const transaction = db.transaction(["streamMusic"], "readwrite");
-
-          transaction.onerror = (event) => {
-            errorToast("재생목록에 추가할 수 없습니다.");
-            LOADING_SCREEN_SAVER_MSG.set("");
-            FLAG_LOADING_SCREEN_SAVER.set(false);
-            FLAG_LOCAL_SEARCH_POPUP.set(false);
-          };
-
-          const store = transaction.objectStore("streamMusic");
+        accessIndexedDB((store) => {
           const storeRequest = store.get(songId);
 
           storeRequest.onsuccess = (event) => {
             if (!storeRequest.result) {
               store.add({
                 id: songId,
-                name: localFiles[0].name,
+                name: file.name,
                 file: fileContent,
               });
             }
-            jsmediatags.read(localFiles[0], {
+            jsmediatags.read(file, {
               onSuccess: async (tag) => {
                 addToPlayListLocalFile(
-                  localFiles[0],
+                  file,
                   songId,
                   tag.tags.album,
                   tag.tags.artist
@@ -95,24 +88,17 @@
                   "메타데이터가 없는 음원파일입니다. 아티스트 명을 수동으로 기입해주세요."
                 );
                 addToPlayListLocalFile(
-                  localFiles[0],
+                  file,
                   songId,
-                  localFiles[0].name.replace(/(.mp3|.wav|.flac)$/, ""),
+                  file.name.replace(/(.mp3|.wav|.flac)$/, ""),
                   "missing"
                 );
               },
             });
           };
-          storeRequest.onerror = (event) => {
-            errorToast("재생목록에 추가할 수 없습니다.");
-            LOADING_SCREEN_SAVER_MSG.set("");
-            FLAG_LOADING_SCREEN_SAVER.set(false);
-            FLAG_LOCAL_SEARCH_POPUP.set(false);
-          };
-        };
-      };
-
-      reader.readAsText(localFiles[0]);
+          storeRequest.onerror = failed;
+        }, failed);
+      });
     }
   };
 </script>

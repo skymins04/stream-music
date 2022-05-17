@@ -5,17 +5,14 @@ import {
   FLAG_NEXT_SONG_LOADING,
   FLAG_NETWORK_STATUS,
   FLAG_PLAYER_IS_RUNNING,
-  FLAG_LOADING_SCREEN_SAVER,
-  FLAG_LOCAL_SEARCH_POPUP,
   YT_VIDEO_ID,
   LOCAL_SONG_PATH,
   PLAYER_ELEMENT,
   PLAYLIST,
   PLAYER_CURRENT_TIME,
   PLAYER_DURATION,
-  LOADING_SCREEN_SAVER_MSG,
 } from "./stores";
-import { successToast, errorToast, infoToast } from "./toast";
+import { errorToast, infoToast } from "./toast";
 
 /**
  * PLAYLIST 객체를 trigging Subscriber하고 LocalStorage에 저장하는 함수
@@ -72,7 +69,9 @@ export const playSong = (pause: boolean) => {
         }
         break;
       case "local":
-        LOCAL_SONG_PATH.set(get(PLAYLIST).queue[0].songId);
+        get(PLAYLIST).queue[0].songId;
+        LOCAL_SONG_PATH.set();
+        // PLAYER_ELEMENT.set();
         break;
     }
     get(PLAYLIST).currentSong = get(PLAYLIST).queue[0];
@@ -137,4 +136,43 @@ export const getDurationNumToStr = (sec: number) => {
  */
 export const getDurationStrToNum = (str: string) => {
   return parseInt(str.split(":")[0]) * 60 + parseInt(str.split(":")[1]);
+};
+
+/**
+ * FileReader를 얻는 함수
+ * @param file
+ * @param callback
+ */
+export const getFileReader = (
+  file: File,
+  callback: (reader: FileReader, file: File) => void
+) => {
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    callback(reader, file);
+  };
+  reader.readAsText(file);
+};
+
+/**
+ * IndexedDB에 접근하고 streamMusic objectStore를 얻는 함수
+ * @param callback indexedDB 접근 성공 시 실행할 함수
+ * @param onerror indexedDB 접근 실패 시 실행 할 함수
+ */
+export const accessIndexedDB = (
+  callback: (store: IDBObjectStore) => void,
+  onerror: (event: Event) => void
+) => {
+  const indexed = window.indexedDB.open("streamMusic");
+  indexed.onerror = onerror;
+  indexed.onsuccess = (event) => {
+    const db = indexed.result;
+    const transaction = db.transaction(["streamMusic"], "readwrite");
+
+    transaction.onerror = onerror;
+
+    const store = transaction.objectStore("streamMusic");
+
+    callback(store);
+  };
 };

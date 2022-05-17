@@ -13,6 +13,7 @@
   import YtSearch from "./YTSearch.svelte";
   import YtPlayer from "./YTPlayer.svelte";
   import LocalSearch from "./LocalSearch.svelte";
+  import LocalPlayer from "./LocalPlayer.svelte";
 
   import { infoToast } from "../common/toast";
   import {
@@ -104,7 +105,9 @@
         <div class="sub-block player-area">
           {#if $YT_VIDEO_ID != ""}
             <YtPlayer />
-          {:else if $LOCAL_SONG_PATH != ""}{:else}
+          {:else if $LOCAL_SONG_PATH != ""}
+            <LocalPlayer />
+          {:else}
             <div id="none-song">
               <svg
                 class="icon play"
