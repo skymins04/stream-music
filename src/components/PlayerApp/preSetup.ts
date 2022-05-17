@@ -3,7 +3,7 @@ import { get } from "svelte/store";
 import {
   FLAG_NETWORK_STATUS,
   FLAG_PROTECTOR,
-  FLAG_PLAYING,
+  FLAG_PAGE_SELECTER,
   PROTECTOR_CONTENT,
   PLAYLIST,
   PLAYER_VOLUME,
@@ -41,12 +41,6 @@ import { infoToast, errorToast } from "../common/toast";
       };
     };
   }
-
-  // 실수로 페이지를 빠져나가는 것을 방지
-  window.addEventListener("beforeunload", (event) => {
-    event.preventDefault();
-    event.returnValue = "";
-  });
 
   FLAG_NETWORK_STATUS.set(window.navigator.onLine);
   if (!window.navigator.onLine) {

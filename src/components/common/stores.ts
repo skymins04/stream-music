@@ -14,6 +14,7 @@ interface Playlist {
   history: Array<Song>;
 }
 
+export const FLAG_PAGE_SELECTER = writable(0); // 페이지 셀렉터
 export const FLAG_ALLOW_MOBILE = writable(false); // 모바일 기기 접속 허용 여부 플래그
 
 export const FLAG_YT_SEARCH_POPUP = writable(false); // YouTube 음원 추가 팝업 플래그

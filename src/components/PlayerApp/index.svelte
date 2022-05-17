@@ -26,10 +26,19 @@
     YT_VIDEO_ID,
     LOCAL_SONG_PATH,
     PLAYER_ELEMENT,
+    FLAG_CLIENT_STATUS,
     PLAYLIST,
   } from "../common/stores";
 
   import "./preSetup";
+
+  FLAG_CLIENT_STATUS.set(true);
+
+  // 실수로 페이지를 빠져나가는 것을 방지
+  window.addEventListener("beforeunload", (event) => {
+    event.preventDefault();
+    event.returnValue = "";
+  });
 </script>
 
 <Protector>
