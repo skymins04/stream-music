@@ -129,7 +129,7 @@
   </table>
 {:else}
   <EmptyCover
-    msg={"플레이리스트에 대기 중인 곡이 없습니다.<br>YouTube 또는 로컬 음원파일(mp3, wav)을 추가해보세요!"}
+    msg={"플레이리스트에 대기 중인 곡이 없습니다.<br>YouTube 또는 로컬 음원파일(MP3, WAV, FLAC)을 추가해보세요!"}
     height={"100%"}
   />
 {/if}

@@ -4,15 +4,15 @@ import {
   FLAG_PLAYER_IS_READY,
   FLAG_NEXT_SONG_LOADING,
   FLAG_NETWORK_STATUS,
+  FLAG_PLAYER_IS_RUNNING,
   YT_VIDEO_ID,
   LOCAL_SONG_PATH,
   PLAYER_ELEMENT,
   PLAYLIST,
-  PLAYER_VOLUME,
   PLAYER_CURRENT_TIME,
   PLAYER_DURATION,
 } from "./stores";
-import { errorToast } from "./toast";
+import { errorToast, infoToast } from "./toast";
 
 /**
  * PLAYLIST 객체를 trigging Subscriber하고 LocalStorage에 저장하는 함수
@@ -43,6 +43,7 @@ export const stopSong = (pause: boolean = false) => {
   FLAG_PLAYER_IS_READY.set(false);
   PLAYER_CURRENT_TIME.set(0);
   PLAYER_DURATION.set("00:00");
+  FLAG_PLAYER_IS_RUNNING.set(false);
   savePlayList();
 };
 
@@ -51,11 +52,20 @@ export const stopSong = (pause: boolean = false) => {
  * @param pause 재생상태 여부, true: 재생, false: 일시정지
  */
 export const playSong = (pause: boolean) => {
-  FLAG_PLAYING.set(pause);
+  FLAG_PLAYER_IS_RUNNING.set(false);
   const currentSong = get(PLAYLIST).currentSong;
 
+  // 재생 대기열 및 현재재생중인 노래가 있는지 검사
+  if (get(PLAYLIST).queue.length == 0 && currentSong === null) {
+    errorToast("재생대기열에 노래가 없습니다.");
+    return;
+  }
+
+  FLAG_PLAYING.set(pause);
+
+  // 현재 재생중인 노래가 없는 상태에서 재생을 시작하는 경우
   if (currentSong === null) {
-    // 현재 재생중인 노래가 없는 상태에서 재생을 시작하는 경우
+    get(PLAYLIST).currentSong = get(PLAYLIST).queue[0];
     switch (get(PLAYLIST).queue[0].type) {
       case "youtube":
         if (get(FLAG_NETWORK_STATUS))
@@ -67,19 +77,46 @@ export const playSong = (pause: boolean) => {
         }
         break;
       case "local":
-        LOCAL_SONG_PATH.set(get(PLAYLIST).queue[0].songId);
+        const failed = () => {
+          FLAG_PLAYING.set(false);
+          get(PLAYLIST).currentSong = null;
+          errorToast("음원파일을 재생할 수 없습니다.");
+          return;
+        };
+
+        accessIndexedDB((store) => {
+          const currentSong = get(PLAYLIST).currentSong;
+          if (currentSong === null) failed();
+          else {
+            const storeRequest = store.get(currentSong.songId);
+
+            storeRequest.onerror = failed;
+            storeRequest.onsuccess = (event) => {
+              if (!storeRequest.result) {
+                failed();
+              }
+              LOCAL_SONG_PATH.set(
+                URL.createObjectURL(new Blob([storeRequest.result.file]))
+              );
+            };
+          }
+        }, failed);
         break;
     }
-    get(PLAYLIST).currentSong = get(PLAYLIST).queue[0];
     get(PLAYLIST).queue.shift();
     savePlayList();
+
+    infoToast(
+      `Now Playing: ${get(PLAYLIST).currentSong?.title} - ${
+        get(PLAYLIST).currentSong?.artist
+      }`
+    );
   } else {
     // 현재 재생중인 노래가 있는 경우
     switch (currentSong.type) {
       case "youtube":
         const interval = setInterval(() => {
           if (get(FLAG_PLAYER_IS_READY)) {
-            (get(PLAYER_ELEMENT) as any).setVolume(get(PLAYER_VOLUME));
             (get(PLAYER_ELEMENT) as any).playVideo();
             clearInterval(interval);
           }
@@ -127,4 +164,43 @@ export const getDurationNumToStr = (sec: number) => {
  */
 export const getDurationStrToNum = (str: string) => {
   return parseInt(str.split(":")[0]) * 60 + parseInt(str.split(":")[1]);
+};
+
+/**
+ * FileReader를 얻는 함수
+ * @param file
+ * @param callback
+ */
+export const getFileReader = (
+  file: File,
+  callback: (reader: FileReader, file: File) => void
+) => {
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    callback(reader, file);
+  };
+  reader.readAsText(file);
+};
+
+/**
+ * IndexedDB에 접근하고 streamMusic objectStore를 얻는 함수
+ * @param callback indexedDB 접근 성공 시 실행할 함수
+ * @param onerror indexedDB 접근 실패 시 실행 할 함수
+ */
+export const accessIndexedDB = (
+  callback: (store: IDBObjectStore) => void,
+  onerror: () => void
+) => {
+  const indexed = window.indexedDB.open("streamMusic");
+  indexed.onerror = onerror;
+  indexed.onsuccess = (event) => {
+    const db = indexed.result;
+    const transaction = db.transaction(["streamMusic"], "readwrite");
+
+    transaction.onerror = onerror;
+
+    const store = transaction.objectStore("streamMusic");
+
+    callback(store);
+  };
 };
