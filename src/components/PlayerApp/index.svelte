@@ -107,7 +107,7 @@
         <div class="sub-block player-area">
           {#if $YT_VIDEO_ID != ""}
             <YtPlayer />
-          {:else if $LOCAL_SONG_PATH != "" || true}
+          {:else if $LOCAL_SONG_PATH != ""}
             <LocalPlayer />
           {:else}
             <div id="none-song">
