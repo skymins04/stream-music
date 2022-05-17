@@ -1,8 +1,16 @@
+import { get } from "svelte/store";
+
 import {
   FLAG_NETWORK_STATUS,
   FLAG_PROTECTOR,
+  FLAG_PLAYING,
   PROTECTOR_CONTENT,
+  PLAYLIST,
+  PLAYER_VOLUME,
+  YT_VIDEO_ID,
+  LOCAL_SONG_PATH,
 } from "../common/stores";
+import { accessIndexedDB } from "../common/functions";
 import { infoToast, errorToast } from "../common/toast";
 
 (() => {
@@ -52,4 +60,55 @@ import { infoToast, errorToast } from "../common/toast";
     errorToast("네트워크가 해제가 감지되었습니다.");
     FLAG_NETWORK_STATUS.set(false);
   });
+
+  const localStoragePlayList = localStorage.getItem("streamMusicPlayList");
+  if (localStoragePlayList !== null)
+    PLAYLIST.set(
+      JSON.parse(decodeURIComponent(escape(window.atob(localStoragePlayList))))
+    );
+  const localStoragePlayerVolume = localStorage.getItem("playerVolume");
+  if (localStoragePlayerVolume !== null)
+    PLAYER_VOLUME.set(parseInt(localStoragePlayerVolume));
+  else {
+    localStorage.setItem("playerVolume", String(50));
+    PLAYER_VOLUME.set(50);
+  }
+
+  const cs = get(PLAYLIST).currentSong;
+  if (cs !== null) {
+    switch (cs.type) {
+      case "youtube":
+        YT_VIDEO_ID.set(cs.songId);
+        break;
+      case "local":
+        const failed = () => {
+          get(PLAYLIST).currentSong = null;
+          errorToast("음원파일을 찾을 수 없습니다.");
+          return;
+        };
+
+        accessIndexedDB((store) => {
+          if (cs === null) failed();
+          else {
+            const storeRequest = store.get(cs.songId);
+
+            storeRequest.onerror = failed;
+            storeRequest.onsuccess = (event) => {
+              if (!storeRequest.result) {
+                failed();
+              }
+              let type: string = "";
+              if (storeRequest.result.type === "mp3") type = "audio/mpeg3";
+              else if (storeRequest.result.type === "wav") type = "audio/wav";
+              else if (storeRequest.result.type === "flac")
+                type = "audio/x-flac";
+              LOCAL_SONG_PATH.set(
+                URL.createObjectURL(new Blob([storeRequest.result.file]))
+              );
+            };
+          }
+        }, failed);
+        break;
+    }
+  }
 })();

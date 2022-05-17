@@ -3,11 +3,7 @@
 </script>
 
 <div id="local-player-area">
-  <audio
-    class="player"
-    id="local-player"
-    src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-  />
+  <audio controls class="player" id="local-player" src={$LOCAL_SONG_PATH} />
 </div>
 
 <style lang="scss">
@@ -19,10 +15,5 @@
     justify-content: center;
     align-items: center;
     background-color: aqua;
-
-    audio {
-      border: 1px solid red;
-      z-index: 1000;
-    }
   }
 </style>

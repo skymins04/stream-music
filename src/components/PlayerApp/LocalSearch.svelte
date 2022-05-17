@@ -51,7 +51,7 @@
     LOADING_SCREEN_SAVER_MSG.set("재생대기열에 추가 중...");
     FLAG_LOADING_SCREEN_SAVER.set(true);
 
-    const failed = (event: Event) => {
+    const failed = () => {
       errorToast("재생목록에 추가할 수 없습니다.");
       LOADING_SCREEN_SAVER_MSG.set("");
       FLAG_LOADING_SCREEN_SAVER.set(false);
@@ -71,7 +71,8 @@
               store.add({
                 id: songId,
                 name: file.name,
-                file: fileContent,
+                file: file,
+                type: file.name.match(/(.mp3|.wav|.flac)$/)[0].replace(".", ""),
               });
             }
             jsmediatags.read(file, {

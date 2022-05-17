@@ -53,11 +53,19 @@ export const stopSong = (pause: boolean = false) => {
  */
 export const playSong = (pause: boolean) => {
   FLAG_PLAYER_IS_RUNNING.set(false);
-  FLAG_PLAYING.set(pause);
   const currentSong = get(PLAYLIST).currentSong;
 
+  // 재생 대기열 및 현재재생중인 노래가 있는지 검사
+  if (get(PLAYLIST).queue.length == 0 && currentSong === null) {
+    errorToast("재생대기열에 노래가 없습니다.");
+    return;
+  }
+
+  FLAG_PLAYING.set(pause);
+
+  // 현재 재생중인 노래가 없는 상태에서 재생을 시작하는 경우
   if (currentSong === null) {
-    // 현재 재생중인 노래가 없는 상태에서 재생을 시작하는 경우
+    get(PLAYLIST).currentSong = get(PLAYLIST).queue[0];
     switch (get(PLAYLIST).queue[0].type) {
       case "youtube":
         if (get(FLAG_NETWORK_STATUS))
@@ -69,12 +77,32 @@ export const playSong = (pause: boolean) => {
         }
         break;
       case "local":
-        get(PLAYLIST).queue[0].songId;
-        LOCAL_SONG_PATH.set();
-        // PLAYER_ELEMENT.set();
+        const failed = () => {
+          FLAG_PLAYING.set(false);
+          get(PLAYLIST).currentSong = null;
+          errorToast("음원파일을 재생할 수 없습니다.");
+          return;
+        };
+
+        accessIndexedDB((store) => {
+          const currentSong = get(PLAYLIST).currentSong;
+          if (currentSong === null) failed();
+          else {
+            const storeRequest = store.get(currentSong.songId);
+
+            storeRequest.onerror = failed;
+            storeRequest.onsuccess = (event) => {
+              if (!storeRequest.result) {
+                failed();
+              }
+              LOCAL_SONG_PATH.set(
+                URL.createObjectURL(new Blob([storeRequest.result.file]))
+              );
+            };
+          }
+        }, failed);
         break;
     }
-    get(PLAYLIST).currentSong = get(PLAYLIST).queue[0];
     get(PLAYLIST).queue.shift();
     savePlayList();
 
@@ -161,7 +189,7 @@ export const getFileReader = (
  */
 export const accessIndexedDB = (
   callback: (store: IDBObjectStore) => void,
-  onerror: (event: Event) => void
+  onerror: () => void
 ) => {
   const indexed = window.indexedDB.open("streamMusic");
   indexed.onerror = onerror;

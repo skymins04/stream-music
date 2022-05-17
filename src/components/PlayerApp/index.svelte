@@ -26,6 +26,7 @@
     YT_VIDEO_ID,
     LOCAL_SONG_PATH,
     PLAYER_ELEMENT,
+    PLAYLIST,
   } from "../common/stores";
 
   import "./preSetup";
@@ -94,6 +95,7 @@
             tooltip={"설정"}
             onClick={() => {
               infoToast("현재 서비스 준비중입니다!");
+              console.log($PLAYLIST, $LOCAL_SONG_PATH);
             }}
           />
         </div>

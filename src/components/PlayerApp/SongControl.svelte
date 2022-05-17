@@ -31,12 +31,6 @@
   const clickPlayBtn = () => {
     const currentSong = $PLAYLIST.currentSong;
 
-    // 재생 대기열 및 현재재생중인 노래가 있는지 검사
-    if ($PLAYLIST.queue.length == 0 && currentSong === null) {
-      errorToast("재생대기열에 노래가 없습니다.");
-      return;
-    }
-
     // 재생 상태 토글
     FLAG_PLAYING.set(!$FLAG_PLAYING);
 
