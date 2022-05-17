@@ -1,10 +1,13 @@
 <script lang="ts">
-  import { fade } from "svelte/transition";
+  import { fade, fly } from "svelte/transition";
   import * as animateScroll from "svelte-scrollto";
 
   import { FLAG_PAGE_SELECTER } from "../common/stores";
 
-  let imgSrcs = ["/img/mainlanding-img1.png", "/img/mainlanding-img2.png"];
+  let imgSrcs = [
+    "https://cdn.jsdelivr.net/gh/skymins04/stream-music-cdn/mainlanding-img1.png",
+    "https://cdn.jsdelivr.net/gh/skymins04/stream-music-cdn/mainlanding-img2.png",
+  ];
   let imgSrcsLength = imgSrcs.length;
   let imgSliderIndex = 0;
 
@@ -92,6 +95,11 @@
                 d="M64 448c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L178.8 256L41.38 118.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160c12.5 12.5 12.5 32.75 0 45.25l-160 160C80.38 444.9 72.19 448 64 448z"
               /></svg
             >
+          </div>
+          <div class="dots">
+            {#each imgSrcs as src, i}
+              <div class="dot" class:active={i === imgSliderIndex} />
+            {/each}
           </div>
         </div>
       </div>
@@ -185,6 +193,17 @@
 </div>
 
 <style lang="scss">
+  @keyframes section1intro {
+    from {
+      bottom: -50px;
+      opacity: 0;
+    }
+    to {
+      bottom: 0;
+      opacity: 1;
+    }
+  }
+
   #main-landing {
     position: fixed;
     top: 0;
@@ -193,7 +212,7 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    background-image: url(/img/mainlanding-bg.jpeg);
+    background-image: url(https://cdn.jsdelivr.net/gh/skymins04/stream-music-cdn/mainlanding-bg.jpeg);
     background-size: 100% 100%;
     background-position: center center;
     background-repeat: no-repeat;
@@ -359,6 +378,28 @@
               cursor: pointer;
               opacity: 0.9;
             }
+
+            .dots {
+              position: absolute;
+              bottom: 20px;
+              left: 50%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 10px;
+              transform: translateX(-50%);
+
+              .dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background-color: #ccc;
+                opacity: 0.8;
+              }
+              .dot.active {
+                background-color: var(--color1);
+              }
+            }
           }
 
           .grid {
@@ -416,6 +457,7 @@
         padding-top: 50px;
         height: 1000px;
         overflow: hidden;
+        animation: section1intro 1s ease-in-out;
       }
       .section:nth-child(2),
       .section:nth-child(3) {
