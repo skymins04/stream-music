@@ -2,6 +2,8 @@
   import { Writable } from "svelte/store";
 
   export let popupFlag: Writable<boolean>;
+  export let width: string = "90%";
+  export let minWidth: string = "auto";
 </script>
 
 <div
@@ -12,6 +14,7 @@
 >
   <div
     class="viewport"
+    style="width: {width}; min-width: {minWidth};"
     on:click={(event) => {
       event.stopPropagation();
     }}

@@ -20,7 +20,6 @@
   } from "../common/functions";
 
   import Slider from "../common/Slider.svelte";
-  import App from "../../App.svelte";
 
   let playerDurationNum = 0;
   let playerCurrentTimeStr = "00:00";

@@ -14,8 +14,19 @@ interface Playlist {
   history: Array<Song>;
 }
 
+interface User {
+  id: number;
+  fullName: string;
+  firstName: string;
+  familyName: string;
+  imageURL: string;
+  email: string;
+  channelId: string;
+}
+
 export const FLAG_PAGE_SELECTER = writable(0); // 페이지 셀렉터
 export const FLAG_ALLOW_MOBILE = writable(false); // 모바일 기기 접속 허용 여부 플래그
+export const FLAG_PAGE_IS_LOADING = writable(false); // 페이지가 로딩중인 인지 여부 플래그
 
 export const FLAG_YT_SEARCH_POPUP = writable(false); // YouTube 음원 추가 팝업 플래그
 export const FLAG_SC_SEARCH_POPUP = writable(false); // SoundCloud 음원 추가 팝업 플래그
@@ -44,9 +55,11 @@ export const PLAYER_VOLUME = writable(0); // 플레이어 볼륨 값
 export const PLAYER_CURRENT_TIME = writable(0); // 플레이어 현재 재생 시간
 export const PLAYER_DURATION = writable("00:00"); // 플레이어 총 재생 길이
 
-export const PLAYLIST = writable({
+export const PLAYLIST = writable<Playlist>({
   // 현재재생곡, 재생대기열, 히스로리 객체
   currentSong: null,
   queue: [],
   history: [],
-} as Playlist);
+});
+
+export const USER = writable<User | null>(null);

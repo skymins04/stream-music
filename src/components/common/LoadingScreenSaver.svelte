@@ -5,7 +5,7 @@
 <div id="screen-saver">
   <div class="dialog">
     <span class="msg">{$LOADING_SCREEN_SAVER_MSG}</span>
-    <img class="loading-icon" src="img/loading-icon.gif" alt="" />
+    <img class="loading-icon" src="img/loading-icon.svg" alt="" />
   </div>
 </div>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fly, fade } from "svelte/transition";
+  import { fly } from "svelte/transition";
 
   import { FLAG_HISTORY_LIST, PLAYLIST } from "../common/stores";
   import { savePlayList } from "../common/functions";
