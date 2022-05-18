@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
   import { ToastContainer, FlatToast } from "svelte-toasts";
 
   import LoadingScreenSaver from "../common/LoadingScreenSaver.svelte";
@@ -29,9 +30,12 @@
     FLAG_CLIENT_STATUS,
     FLAG_PAGE_IS_LOADING,
     PLAYLIST,
+    USER,
   } from "../common/stores";
 
   import "./preSetup";
+
+  let profileMenuToggle = false;
 
   // 실수로 페이지를 빠져나가는 것을 방지
   window.addEventListener("beforeunload", (event) => {
@@ -92,11 +96,23 @@
               d="M528 0h-480C21.5 0 0 21.5 0 48v320C0 394.5 21.5 416 48 416h192L224 464H152C138.8 464 128 474.8 128 488S138.8 512 152 512h272c13.25 0 24-10.75 24-24s-10.75-24-24-24H352L336 416h192c26.5 0 48-21.5 48-48v-320C576 21.5 554.5 0 528 0zM512 288H64V64h448V288z"
             /></svg
           >
-          <span>STREAM-MUSIC 클라이언트 연결상태</span>
+          <span>클라이언트 연결상태</span>
           <span>
             <Indicator state={$FLAG_CLIENT_STATUS} />
           </span>
         </span>
+        <img
+          src={$USER?.imageURL}
+          on:click={() => {
+            profileMenuToggle = !profileMenuToggle;
+          }}
+          alt=""
+        />
+        {#if profileMenuToggle}
+          <div class="profile-menu" transition:fade>
+            <div class="menu g_id_signout">로그아웃</div>
+          </div>
+        {/if}
       </div>
     </div>
 
@@ -248,6 +264,49 @@
       color: var(--color1);
       font-size: 2em;
       z-index: 2;
+    }
+
+    .connection-indicators {
+      padding-right: 40px;
+
+      img {
+        position: absolute;
+        top: 50%;
+        right: -10px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #ccc;
+        transform: translateY(-50%);
+      }
+      img:hover {
+        cursor: pointer;
+      }
+
+      .profile-menu {
+        position: absolute;
+        right: -10px;
+        bottom: -3.6em;
+        width: 150px;
+        border: 1px solid rgb(246, 246, 246);
+        border-radius: 10px;
+        background-color: white;
+        box-shadow: 0 0 5px #555;
+
+        .menu {
+          width: 100%;
+          padding: 1em;
+          font-size: 0.8em;
+          font-weight: 400;
+          border-radius: 10px;
+          color: #555;
+          transition: 0.2s;
+        }
+        .menu:hover {
+          cursor: pointer;
+          background-color: #eee;
+        }
+      }
     }
   }
 
