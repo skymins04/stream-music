@@ -26,6 +26,8 @@
   let FlagLoginDialog = writable(false);
   let flagHamburger = false;
 
+  alert(window.location.href);
+
   const onClickImgSliderLeftBtn = () => {
     if (imgSliderIndex === 0) imgSliderIndex = imgSrcsLength - 1;
     else imgSliderIndex -= 1;
