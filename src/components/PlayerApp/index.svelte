@@ -29,6 +29,8 @@
     LOCAL_SONG_PATH,
     FLAG_CLIENT_STATUS,
     FLAG_PAGE_IS_LOADING,
+    FLAG_PROTECTOR,
+    PROTECTOR_CONTENT,
     PLAYLIST,
     USER,
     FLAG_PAGE_SELECTER,
@@ -47,6 +49,11 @@
   });
 
   onMount(() => {
+    const agent = window.navigator.userAgent.toLowerCase();
+    if (agent.indexOf("mobile") !== -1) {
+      FLAG_PROTECTOR.set(true);
+      PROTECTOR_CONTENT.set("모바일은 지원하지 않습니다.");
+    }
     setTimeout(() => {
       FLAG_PAGE_IS_LOADING.set(false);
       document.querySelector(".protector.loading")?.remove();

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
-  import { fade } from "svelte/transition";
+  import { fade, slide } from "svelte/transition";
   import MediaQuery from "svelte-media-query";
   import * as animateScroll from "svelte-scrollto";
   import axios from "axios";
@@ -24,6 +24,7 @@
   let imgSrcsLength = imgSrcs.length;
   let imgSliderIndex = 0;
   let FlagLoginDialog = writable(false);
+  let flagHamburger = false;
 
   const onClickImgSliderLeftBtn = () => {
     if (imgSliderIndex === 0) imgSliderIndex = imgSrcsLength - 1;
@@ -175,7 +176,50 @@
                   }}>LOGIN</a
                 >
               {:else}
-                <div class="btn hamburger"><span /><span /><span /></div>
+                <div
+                  class="btn hamburger"
+                  on:click={() => {
+                    flagHamburger = !flagHamburger;
+                  }}
+                >
+                  <span /><span /><span />
+                </div>
+                {#if flagHamburger}
+                  <div
+                    class="hamburger-menu"
+                    transition:slide={{ duration: 500 }}
+                  >
+                    <div
+                      class="menu"
+                      on:click={() =>
+                        animateScroll.scrollTo({
+                          element: "#ABOUT",
+                          container: "#main-landing",
+                          duration: 1000,
+                        })}
+                    >
+                      ABOUT
+                    </div>
+                    <div
+                      class="menu"
+                      on:click={() => {
+                        FlagLoginDialog.set(true);
+                      }}
+                    >
+                      SERVICE
+                    </div>
+                    <div class="menu">CONTACT-US</div>
+                    <div class="menu">DONATION</div>
+                    <div
+                      class="menu"
+                      on:click={() => {
+                        FlagLoginDialog.set(true);
+                      }}
+                    >
+                      LOGIN
+                    </div>
+                  </div>
+                {/if}
               {/if}
             </MediaQuery>
           </div>
@@ -461,6 +505,32 @@
             cursor: pointer;
             font-weight: 300;
             text-decoration: none !important;
+          }
+
+          .hamburger-menu {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            right: 0;
+            top: 120px;
+            width: 100%;
+            background-color: white;
+            z-index: 50;
+
+            .menu {
+              width: 100%;
+              padding: 1em;
+              font-size: 0.8em;
+              color: #555;
+              border-bottom: 1px solid #eee;
+              transition: 0.2s;
+            }
+            .menu:hover {
+              font-weight: 400;
+              background-color: #eee;
+            }
           }
         }
       }

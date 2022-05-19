@@ -14,11 +14,6 @@ import { accessIndexedDB } from "../common/functions";
 import { infoToast, errorToast } from "../common/toast";
 
 (() => {
-  const agent = window.navigator.userAgent.toLowerCase();
-  if (agent.indexOf("mobile") !== -1) {
-    FLAG_PROTECTOR.set(true);
-    PROTECTOR_CONTENT.set("모바일은 지원하지 않습니다.");
-  }
   if (!window.indexedDB) {
     FLAG_PROTECTOR.set(true);
     PROTECTOR_CONTENT.set(
