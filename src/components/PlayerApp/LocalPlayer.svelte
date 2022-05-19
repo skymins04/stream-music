@@ -61,6 +61,12 @@
     on:ended={onEndedLocalPlayer}
     on:play={onPlayLocalPlayer}
     on:canplaythrough={onCanPlayThroughLocalPlayer}
+    on:pause={() => {
+      FLAG_PLAYING.set(false);
+    }}
+    on:playing={() => {
+      FLAG_PLAYING.set(true);
+    }}
   />
 </div>
 

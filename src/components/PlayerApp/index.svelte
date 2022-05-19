@@ -31,6 +31,7 @@
     FLAG_PAGE_IS_LOADING,
     PLAYLIST,
     USER,
+    FLAG_PAGE_SELECTER,
   } from "../common/stores";
 
   import "./preSetup";
@@ -39,14 +40,17 @@
 
   // 실수로 페이지를 빠져나가는 것을 방지
   window.addEventListener("beforeunload", (event) => {
-    event.preventDefault();
-    event.returnValue = "";
+    if ($FLAG_PAGE_SELECTER === 1) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
   });
 
   onMount(() => {
     setTimeout(() => {
       FLAG_PAGE_IS_LOADING.set(false);
       document.querySelector(".protector.loading")?.remove();
+      document.getElementById("mainlanding-page")?.remove();
     }, 2000);
   });
 </script>
@@ -110,7 +114,19 @@
         />
         {#if profileMenuToggle}
           <div class="profile-menu" transition:fade>
-            <div class="menu g_id_signout">로그아웃</div>
+            <div
+              class="menu"
+              on:click={() => {
+                google.accounts.id.disableAutoSelect();
+                FLAG_PAGE_SELECTER.set(0);
+                FLAG_PAGE_IS_LOADING.set(true);
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              }}
+            >
+              로그아웃
+            </div>
           </div>
         {/if}
       </div>
