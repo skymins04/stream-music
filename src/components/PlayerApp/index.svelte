@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
   import { ToastContainer, FlatToast } from "svelte-toasts";
+  import axios from "axios";
 
   import LoadingScreenSaver from "../common/LoadingScreenSaver.svelte";
   import Btn from "../common/Btn.svelte";
@@ -45,6 +46,16 @@
     if ($FLAG_PAGE_SELECTER === 1) {
       event.preventDefault();
       event.returnValue = "";
+      axios.post(
+        `${
+          window.location.toString().split("://")[0]
+        }://localhost:8888/.netlify/functions/state`,
+        JSON.stringify({
+          type: "player",
+          channelId: $USER.channelId,
+          state: false,
+        })
+      );
     }
   });
 
@@ -128,7 +139,20 @@
                 FLAG_PAGE_SELECTER.set(0);
                 FLAG_PAGE_IS_LOADING.set(true);
                 setTimeout(() => {
-                  window.location.reload();
+                  axios
+                    .post(
+                      `${
+                        window.location.toString().split("://")[0]
+                      }://localhost:8888/.netlify/functions/state`,
+                      JSON.stringify({
+                        type: "player",
+                        channelId: $USER.channelId,
+                        state: false,
+                      })
+                    )
+                    .then(() => {
+                      window.location.reload();
+                    });
                 }, 1000);
               }}
             >

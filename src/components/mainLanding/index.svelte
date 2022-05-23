@@ -26,8 +26,6 @@
   let FlagLoginDialog = writable(false);
   let flagHamburger = false;
 
-  alert(window.location.href);
-
   const onClickImgSliderLeftBtn = () => {
     if (imgSliderIndex === 0) imgSliderIndex = imgSrcsLength - 1;
     else imgSliderIndex -= 1;
@@ -61,7 +59,7 @@
       .post(
         `${
           window.location.toString().split("://")[0]
-        }://stream-music-api.netlify.app/.netlify/functions/login`,
+        }://localhost:8888/.netlify/functions/login`,
         JSON.stringify({
           id: responsePayload.sub,
           email: responsePayload.email,
@@ -77,11 +75,24 @@
           email: responsePayload.email,
           channelId: res.data.channelId,
         });
-        console.log($USER);
-        FLAG_PAGE_SELECTER.set(1);
-        successToast(
-          `로그인 되었습니다. ${$USER?.fullName} 님의 플레이리스트를 스트림하세요!`
-        );
+        axios
+          .post(
+            `${
+              window.location.toString().split("://")[0]
+            }://localhost:8888/.netlify/functions/state`,
+            JSON.stringify({
+              type: "player",
+              channelId: res.data.channelId,
+              state: true,
+            })
+          )
+          .then(() => {
+            console.log($USER);
+            FLAG_PAGE_SELECTER.set(1);
+            successToast(
+              `로그인 되었습니다. ${$USER?.fullName} 님의 플레이리스트를 스트림하세요!`
+            );
+          });
       })
       .catch((err) => {
         errorToast("로그인을 실패했습니다.");
