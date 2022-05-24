@@ -14,6 +14,7 @@
     FLAG_PAGE_IS_LOADING,
     FLAG_PAGE_SELECTER,
     USER,
+    API_SERVER,
   } from "../common/stores";
   import { errorToast, successToast } from "../common/toast";
 
@@ -59,13 +60,14 @@
       .post(
         `${
           window.location.toString().split("://")[0]
-        }://localhost:8888/.netlify/functions/login`,
+        }://${$API_SERVER}/.netlify/functions/login`,
         JSON.stringify({
           id: responsePayload.sub,
           email: responsePayload.email,
         })
       )
       .then((res) => {
+        FLAG_PAGE_SELECTER.set(1);
         USER.set({
           id: parseInt(responsePayload.sub),
           fullName: responsePayload.name,
@@ -79,7 +81,7 @@
           .post(
             `${
               window.location.toString().split("://")[0]
-            }://localhost:8888/.netlify/functions/state`,
+            }://${$API_SERVER}/.netlify/functions/state`,
             JSON.stringify({
               type: "player",
               channelId: res.data.channelId,
@@ -88,7 +90,6 @@
           )
           .then(() => {
             console.log($USER);
-            FLAG_PAGE_SELECTER.set(1);
             successToast(
               `로그인 되었습니다. ${$USER?.fullName} 님의 플레이리스트를 스트림하세요!`
             );

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { fade } from "svelte/transition";
   import { ToastContainer, FlatToast } from "svelte-toasts";
   import axios from "axios";
@@ -18,7 +18,7 @@
   import LocalSearch from "./LocalSearch.svelte";
   import LocalPlayer from "./LocalPlayer.svelte";
 
-  import { infoToast } from "../common/toast";
+  import { errorToast, infoToast } from "../common/toast";
   import {
     FLAG_YT_SEARCH_POPUP,
     FLAG_LOADING_SCREEN_SAVER,
@@ -28,18 +28,21 @@
     FLAG_LOCAL_SEARCH_POPUP,
     YT_VIDEO_ID,
     LOCAL_SONG_PATH,
-    FLAG_CLIENT_STATUS,
     FLAG_PAGE_IS_LOADING,
     FLAG_PROTECTOR,
     PROTECTOR_CONTENT,
     PLAYLIST,
     USER,
     FLAG_PAGE_SELECTER,
+    API_SERVER,
   } from "../common/stores";
+  import { RTCPeerPlayer } from "./rtcPeerPlayer";
 
   import "./preSetup";
 
   let profileMenuToggle = false;
+
+  let rtcPeer: RTCPeerPlayer;
 
   // 실수로 페이지를 빠져나가는 것을 방지
   window.addEventListener("beforeunload", (event) => {
@@ -49,7 +52,7 @@
       axios.post(
         `${
           window.location.toString().split("://")[0]
-        }://localhost:8888/.netlify/functions/state`,
+        }://${$API_SERVER}/.netlify/functions/state`,
         JSON.stringify({
           type: "player",
           channelId: $USER.channelId,
@@ -69,8 +72,23 @@
       FLAG_PAGE_IS_LOADING.set(false);
       document.querySelector(".protector.loading")?.remove();
       document.getElementById("mainlanding-page")?.remove();
+      rtcPeer = new RTCPeerPlayer(
+        $USER?.channelId as string,
+        (msg) => {
+          alert(msg);
+        },
+        FLAG_CLIENT_STATUS
+      );
+      rtcPeer.connectP2PSession(
+        () => {},
+        () => {
+          errorToast("클라이언트 연결 timeout");
+        }
+      );
     }, 2000);
   });
+
+  onDestroy(() => {});
 </script>
 
 <Protector>
@@ -136,14 +154,13 @@
               class="menu"
               on:click={() => {
                 google.accounts.id.disableAutoSelect();
-                FLAG_PAGE_SELECTER.set(0);
                 FLAG_PAGE_IS_LOADING.set(true);
                 setTimeout(() => {
                   axios
                     .post(
                       `${
                         window.location.toString().split("://")[0]
-                      }://localhost:8888/.netlify/functions/state`,
+                      }://${$API_SERVER}/.netlify/functions/state`,
                       JSON.stringify({
                         type: "player",
                         channelId: $USER.channelId,
@@ -151,6 +168,7 @@
                       })
                     )
                     .then(() => {
+                      FLAG_PAGE_SELECTER.set(0);
                       window.location.reload();
                     });
                 }, 1000);

@@ -63,3 +63,5 @@ export const PLAYLIST = writable<Playlist>({
 });
 
 export const USER = writable<User | null>(null);
+
+export const API_SERVER = writable("localhost:8888");
