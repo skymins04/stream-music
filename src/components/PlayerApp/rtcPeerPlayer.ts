@@ -89,12 +89,14 @@ class RTCPeerPlayer {
           )
           .then(() => {
             const timer = new Date().getTime();
+            let failFlag = false;
             const listenAnswerInterval = setInterval(() => {
-              if (timer + 10000 < new Date().getTime()) {
+              if (timer + 10000 < new Date().getTime() && !failFlag) {
                 clearInterval(listenAnswerInterval);
                 clearInterval(connectionCheckInterval);
                 this.resetRTCConnection();
                 failCallback();
+                failFlag = true;
                 return;
               }
               axios
@@ -111,11 +113,12 @@ class RTCPeerPlayer {
                     await this.RTCConnection.setRemoteDescription(
                       JSON.parse(answer)
                     ).then(successCallback);
-                  } else if (connectionState === "reset") {
+                  } else if (connectionState === "reset" && !failFlag) {
                     clearInterval(listenAnswerInterval);
                     clearInterval(connectionCheckInterval);
                     this.resetRTCConnection();
                     failCallback();
+                    failFlag = true;
                   }
                 });
             }, 1000);

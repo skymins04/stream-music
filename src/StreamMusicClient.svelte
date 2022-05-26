@@ -79,6 +79,15 @@
   }
 </script>
 
+<svelte:head
+  ><style>
+    html,
+    body {
+      background-color: transparent !important;
+    }
+  </style></svelte:head
+>
+
 <h1>channelId: {params.channelId}</h1>
 
 <style lang="scss">

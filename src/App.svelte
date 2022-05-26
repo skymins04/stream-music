@@ -4,14 +4,6 @@
   import StreamMusicClient from "./StreamMusicClient.svelte";
 </script>
 
-<svelte:head
-  ><style>
-    html,
-    body {
-      background-color: transparent !important;
-    }
-  </style></svelte:head
->
 <Router
   routes={{ "/": StreamMusic, "/client/:channelId": StreamMusicClient }}
 />
