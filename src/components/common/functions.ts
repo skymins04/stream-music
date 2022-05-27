@@ -11,6 +11,7 @@ import {
   PLAYLIST,
   PLAYER_CURRENT_TIME,
   PLAYER_DURATION,
+  WEBRTC_PEER,
 } from "./stores";
 import { errorToast, infoToast } from "./toast";
 
@@ -23,6 +24,20 @@ export const savePlayList = () => {
     "streamMusicPlayList",
     btoa(unescape(encodeURIComponent(JSON.stringify(get(PLAYLIST)))))
   );
+  sendPlaylistToClient();
+};
+
+/**
+ * PLAYLIST 데이터를 클라이언트로 보내는 함수
+ */
+export const sendPlaylistToClient = () => {
+  if (get(WEBRTC_PEER) !== undefined)
+    get(WEBRTC_PEER).sendMessage(
+      JSON.stringify({
+        currentSong: get(PLAYLIST).currentSong,
+        queue: get(PLAYLIST).queue,
+      })
+    );
 };
 
 /**

@@ -18,7 +18,7 @@
   import LocalSearch from "./LocalSearch.svelte";
   import LocalPlayer from "./LocalPlayer.svelte";
 
-  import { errorToast, infoToast } from "../common/toast";
+  import { errorToast, infoToast, successToast } from "../common/toast";
   import {
     FLAG_YT_SEARCH_POPUP,
     FLAG_LOADING_SCREEN_SAVER,
@@ -35,14 +35,13 @@
     USER,
     FLAG_PAGE_SELECTER,
     API_SERVER,
+    WEBRTC_PEER,
   } from "../common/stores";
-  import { RTCPeerPlayer } from "./rtcPeerPlayer";
+  import { RTCPeerPlayer } from "../common/rtcPeerPlayer";
 
   import "./preSetup";
 
   let profileMenuToggle = false;
-
-  let rtcPeer: RTCPeerPlayer;
 
   // 실수로 페이지를 빠져나가는 것을 방지
   window.addEventListener("beforeunload", (event) => {
@@ -72,15 +71,19 @@
       FLAG_PAGE_IS_LOADING.set(false);
       document.querySelector(".protector.loading")?.remove();
       document.getElementById("mainlanding-page")?.remove();
-      rtcPeer = new RTCPeerPlayer(
-        $USER?.channelId as string,
-        (msg) => {
-          alert(msg);
-        },
-        FLAG_CLIENT_STATUS
+      WEBRTC_PEER.set(
+        new RTCPeerPlayer(
+          $USER?.channelId as string,
+          (msg) => {
+            alert(msg);
+          },
+          FLAG_CLIENT_STATUS
+        )
       );
-      rtcPeer.connectP2PSession(
-        () => {},
+      $WEBRTC_PEER.connectP2PSession(
+        () => {
+          infoToast("클라이언트가 연결되었습니다.");
+        },
         () => {
           errorToast("클라이언트 연결 timeout");
         }
@@ -192,7 +195,8 @@
               tooltip={"설정"}
               onClick={() => {
                 infoToast("현재 서비스 준비중입니다!");
-                console.log($PLAYLIST, $LOCAL_SONG_PATH);
+                // console.log($PLAYLIST, $LOCAL_SONG_PATH);
+                $WEBRTC_PEER.sendMessage("test Message hahaha!");
               }}
             />
           </div>

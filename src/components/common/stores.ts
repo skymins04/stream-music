@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { RTCPeerPlayer } from "./rtcPeerPlayer";
 
 export interface Song {
   type: string;
@@ -67,3 +68,5 @@ export const USER = writable<User | null>(null);
 const API_DEV_SERVER = "localhost:8888";
 const API_PROD_SERVER = "stream-music-api.netlify.app";
 export const API_SERVER = writable(API_PROD_SERVER);
+
+export const WEBRTC_PEER = writable<RTCPeerPlayer>(undefined);
