@@ -111,6 +111,7 @@
     ): Promise<void> {
       console.log("start watch");
       let connectionFlag = false;
+      let resetFlag = false;
       const watchCreatedOfferInterval = setInterval(() => {
         axios
           .get(
@@ -162,12 +163,15 @@
                   });
               }
             } else if (connectionState === "reset") {
-              console.log("connnection reset");
-              clearInterval(watchCreatedOfferInterval);
-              clearInterval(connectionCheckInterval);
-              this.resetRTCConnection();
-              failCallback();
-              this.connectP2PSession();
+              if (!resetFlag) {
+                resetFlag = true;
+                console.log("connnection reset");
+                clearInterval(watchCreatedOfferInterval);
+                clearInterval(connectionCheckInterval);
+                this.resetRTCConnection();
+                failCallback();
+                this.connectP2PSession();
+              }
             }
           })
           .then(() => console.log("watch"));
@@ -191,12 +195,16 @@
   }
 
   let rtcPeerClient: RTCPeerClient;
+  let playlist: any = {
+    currentSong: null,
+    queue: [],
+  };
 
   onMount(() => {
     rtcPeerClient = new RTCPeerClient(
       params.channelId,
       (msg: string) => {
-        console.log(`[${new Date().toISOString()}] ${msg}`);
+        playlist = JSON.parse(msg);
       },
       FLAG_CLIENT_STATUS
     );
@@ -221,6 +229,15 @@
 >
 
 <h1>channelId: {params.channelId}</h1>
+<h2>
+  현재 재생중인 곡: {playlist.currentSong === null
+    ? "재생중이지 않음"
+    : `${playlist.currentSong.title} - ${playlist.currentSong.artist}`}
+</h2>
+<h2>재생 대기열:</h2>
+{#each playlist.queue as song, i}
+  <h3>{i + 1}. {song.title} - {song.artist}</h3>
+{/each}
 
 <style lang="scss">
 </style>

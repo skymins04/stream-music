@@ -98,6 +98,7 @@ class RTCPeerPlayer {
           .then(() => {
             const timer = new Date().getTime();
             let connectionFlag = false;
+            let resetFlag = false;
             const listenAnswerInterval = setInterval(async () => {
               // if (timer + 10000 < new Date().getTime() && !failFlag) {
               //   clearInterval(listenAnswerInterval);
@@ -160,7 +161,8 @@ class RTCPeerPlayer {
                             });
                         });
                     }
-                  } else if (connectionState === "reset") {
+                  } else if (connectionState === "reset" && !resetFlag) {
+                    resetFlag = true;
                     clearInterval(listenAnswerInterval);
                     // clearInterval(connectionCheckInterval);
                     this.resetRTCConnection();
@@ -169,12 +171,6 @@ class RTCPeerPlayer {
                 });
             }, 1000);
           });
-      } else if (
-        !event.candidate &&
-        this.RTCConnection.localDescription !== null
-      ) {
-        clearInterval(connectionCheckInterval);
-        console.log("failed create to offer");
       }
     };
 
